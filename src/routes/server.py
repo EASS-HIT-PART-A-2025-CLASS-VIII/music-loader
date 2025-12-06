@@ -1,5 +1,6 @@
 
 import asyncio
+import os
 
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
@@ -20,16 +21,18 @@ async def read_root_head():
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    # Return DB status along with app status for simple monitoring
-    db = get_db()
-    if db is None:
-        return {"status": "ok", "db": "not_initialized"}
-    try:
-        await asyncio.to_thread(db.client.admin.command, "ping")
-        db_status = "ok"
-    except PyMongoError:
-        db_status = "unhealthy"
-    return {"status": "ok", "db": db_status}
+    # Lightweight health for Render; DB ping only if explicitly enabled
+    if os.getenv("HEALTHCHECK_DB", "false").lower() == "true":
+        db = get_db()
+        if db is None:
+            return {"status": "ok", "db": "not_initialized"}
+        try:
+            await asyncio.to_thread(db.client.admin.command, "ping")
+            db_status = "ok"
+        except PyMongoError:
+            db_status = "unhealthy"
+        return {"status": "ok", "db": db_status}
+    return {"status": "ok", "db": "skipped"}
 
 
 @app.head("/health", include_in_schema=False)
