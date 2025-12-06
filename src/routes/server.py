@@ -32,6 +32,11 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "db": db_status}
 
 
+@app.head("/health", include_in_schema=False)
+async def health_head():
+    return {}
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse("favicon.ico")
