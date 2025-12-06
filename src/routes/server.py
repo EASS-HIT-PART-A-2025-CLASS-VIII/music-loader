@@ -1,10 +1,12 @@
 
-from main import app
-import database
 import asyncio
-from pymongo import PyMongoError
+
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
+from pymongo import PyMongoError
+
+from main import app
+from src.DI.container import get_db
 
 @app.get("/")
 async def read_root() -> dict[str, str]:
@@ -14,11 +16,11 @@ async def read_root() -> dict[str, str]:
 @app.get("/health")
 async def health() -> dict[str, str]:
     # Return DB status along with app status for simple monitoring
-    if database.get_client() is None:
+    db = get_db()
+    if db is None:
         return {"status": "ok", "db": "not_initialized"}
-
     try:
-        await asyncio.to_thread(database.get_client().admin.command, "ping")
+        await asyncio.to_thread(db.client.admin.command, "ping")
         db_status = "ok"
     except PyMongoError:
         db_status = "unhealthy"

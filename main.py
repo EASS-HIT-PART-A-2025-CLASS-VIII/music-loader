@@ -27,6 +27,8 @@ def create_app() -> FastAPI:
     return app
 
 app = create_app()
+# Import after app creation so server routes can attach to the shared app
+from src.routes import server  # noqa: E402,F401
 
 
     
@@ -37,5 +39,3 @@ if __name__ == "__main__":
     
     
     
-
-
