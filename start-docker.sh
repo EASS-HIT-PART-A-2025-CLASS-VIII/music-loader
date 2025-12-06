@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_FILE=".env.dock"
+ENV_FILE=".env.docker"
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "please create a $ENV_FILE file and write all needed secret variables inside (see ${ENV_FILE}.example)"

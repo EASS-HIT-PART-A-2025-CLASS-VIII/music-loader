@@ -3,7 +3,7 @@ import asyncio
 
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
-from pymongo import PyMongoError
+from pymongo.errors import PyMongoError
 
 from main import app
 from src.DI.container import get_db
