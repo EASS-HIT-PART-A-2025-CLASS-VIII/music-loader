@@ -13,6 +13,11 @@ async def read_root() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.head("/", include_in_schema=False)
+async def read_root_head():
+    return {}
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     # Return DB status along with app status for simple monitoring
