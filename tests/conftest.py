@@ -46,7 +46,9 @@ class FakeCollection:
 class FakeDatabase:
     def __init__(self) -> None:
         self.pieces_collection = FakeCollection()
-        self.client = SimpleNamespace(admin=SimpleNamespace(command=lambda *_: {"ok": 1}))
+        self.client = SimpleNamespace(
+            admin=SimpleNamespace(command=lambda *_: {"ok": 1})
+        )
 
 
 class FakePieceDAO:

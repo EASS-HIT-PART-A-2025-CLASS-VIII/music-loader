@@ -6,7 +6,9 @@ import logging
 from requests import session
 
 
-async def wait_for_mongo(client: MongoClient, retries: int = 3, delay: float = 1.0) -> None:
+async def wait_for_mongo(
+    client: MongoClient, retries: int = 3, delay: float = 1.0
+) -> None:
     for attempt in range(1, retries + 1):
         try:
             print("entered try")
@@ -18,17 +20,15 @@ async def wait_for_mongo(client: MongoClient, retries: int = 3, delay: float = 1
                 raise
             logging.info("Mongo not ready (attempt %s/%s): %s", attempt, retries, exc)
             await asyncio.sleep(delay)
-            
-            
-            
+
 
 def is_pdf_text(text):
-        if not text:
-            return False
-        t = text.strip().lower()
-        return "a4" in t and "pdf" in t
-    
-    
+    if not text:
+        return False
+    t = text.strip().lower()
+    return "a4" in t and "pdf" in t
+
+
 def download_pdf(pdf_url, dest_dir):
     """
     Télécharge un PDF vers dest_dir en gardant le nom de fichier.

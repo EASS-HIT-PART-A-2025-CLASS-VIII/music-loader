@@ -14,7 +14,11 @@ def test_read_root():
 
 def test_health_skips_db(monkeypatch):
     monkeypatch.setenv("HEALTHCHECK_DB", "false")
-    assert asyncio.run(server.health()) == {"status": "ok", "db": "skipped", "pieces": "skipped"}
+    assert asyncio.run(server.health()) == {
+        "status": "ok",
+        "db": "skipped",
+        "pieces": "skipped",
+    }
     assert asyncio.run(server.health_head()) == {}
 
 
@@ -51,7 +55,11 @@ def test_health_reports_unhealthy(monkeypatch):
     )
 
     result = asyncio.run(server.health())
-    assert result == {"status": "ok", "db": "unhealthy", "pieces": {"status": "unknown"}}
+    assert result == {
+        "status": "ok",
+        "db": "unhealthy",
+        "pieces": {"status": "unknown"},
+    }
 
 
 def test_favicon_returns_file_response():

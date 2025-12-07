@@ -1,5 +1,6 @@
 # Music Sheets API
 FastAPI service backed by MongoDB that scrapes music sheets (Mutopia) and serves metadata over HTTP.
+IMPORTANT: This service is available at : https://music-loader.onrender.com/ (base URL)
 
 ## Prerequisites
 - Python 3.11+
@@ -64,6 +65,7 @@ brew services start mongodb-community
 Call once Mongo is up:
 ```
 GET http://localhost:8000/start-scrapping        # uses MAX_PIECES default
+GET http://localhost:8000/start-scrapping?max_pieces=<number of musical pieces wanted>
 GET http://localhost:8000/{max_pieces}  #write you own number of pieces in the request
 ```
 By default only 20 pieces are scraped (see `config.MAX_PIECES`).

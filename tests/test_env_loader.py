@@ -43,7 +43,11 @@ def test_load_env_file_uses_dotenv_when_available(monkeypatch, tmp_path):
     def fake_find_spec(name: str):
         return object()
 
-    fake_dotenv = types.SimpleNamespace(load_dotenv=lambda path, override=False: called.setdefault("args", (path, override)))
+    fake_dotenv = types.SimpleNamespace(
+        load_dotenv=lambda path, override=False: called.setdefault(
+            "args", (path, override)
+        )
+    )
 
     monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
     monkeypatch.setitem(sys.modules, "dotenv", fake_dotenv)

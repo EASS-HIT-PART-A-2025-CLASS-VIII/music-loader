@@ -22,7 +22,7 @@ class MusicalPiece(BaseModel):
         if not v.strip():
             raise ValueError("Title must not be empty")
         return v
-    
+
     @field_validator("pdf_url")
     def pdf_url_must_not_be_empty(cls, v: str | None) -> str | None:
         if v is not None and not v.strip():
@@ -30,8 +30,8 @@ class MusicalPiece(BaseModel):
         return v
 
     model_config = {"populate_by_name": True}
-    
-    def _serialize_document(self,doc: dict) -> dict | None:
+
+    def _serialize_document(self, doc: dict) -> dict | None:
         """
         Validate and serialize a Mongo document into a JSON-serializable dict
         using the MusicalPiece Pydantic model.
@@ -46,6 +46,3 @@ class MusicalPiece(BaseModel):
         except self.ValidationError as exc:
             logger.warning("Skipping invalid document %s: %s", doc.get("_id"), exc)
             return None
-
-    
-    

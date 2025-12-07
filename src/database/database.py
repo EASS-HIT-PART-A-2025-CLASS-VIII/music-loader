@@ -10,19 +10,17 @@ from functools import lru_cache
 class Database:
     _instance: "Database" | None = None
     _init_done = False
-        
+
     def __new__(cls, *args, **kwargs):
         if cls._instance is not None:
             raise RuntimeError("Database singleton already created; use get_database()")
         cls._instance = super().__new__(cls)
         return cls._instance
-    
+
     def __init__(self) -> None:
         self.mongo_uri = os.getenv("MONGO_URI")
         self.db_name = (
-            os.getenv("MONGO_CURRENT_DB")
-            or os.getenv("MONGO_DB")
-            or "music_sheets_db"
+            os.getenv("MONGO_CURRENT_DB") or os.getenv("MONGO_DB") or "music_sheets_db"
         )
 
         self._client: MongoClient = MongoClient(

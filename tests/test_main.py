@@ -21,10 +21,13 @@ def test_lifespan_attaches_db(monkeypatch):
         def close(self):
             closed["closed"] = True
 
-    fake_container = types.SimpleNamespace(db=types.SimpleNamespace(client=FakeClient()))
+    fake_container = types.SimpleNamespace(
+        db=types.SimpleNamespace(client=FakeClient())
+    )
     monkeypatch.setattr(main, "get_container", lambda: fake_container)
 
     app = main.create_app()
+
     async def _run():
         async with main.lifespan(app):
             assert app.state.db is fake_container.db

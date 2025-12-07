@@ -45,6 +45,10 @@ class Repository:
         cursor = self.collection.find({"style": {"$in": variants}})
         objects: list[dict] = []
         for doc in cursor:
-            if (piece := self._serialize(doc)):
+            if piece := self._serialize(doc):
                 objects.append(piece)
         return objects
+
+    def get_all_objects(self) -> list[dict]:
+        cursor = self.collection.find({})
+        return [piece for doc in cursor if (piece := self._serialize(doc))]

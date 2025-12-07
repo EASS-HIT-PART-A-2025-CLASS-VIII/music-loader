@@ -1,4 +1,3 @@
-import os
 import time
 from urllib.parse import urljoin
 import requests
@@ -15,6 +14,7 @@ OUTPUT_DIR = "mutopia_a4_pdfs"
 
 session = requests.Session()
 session.headers["User-Agent"] = "MutopiaA4Scraper/1.0 (personal use)"
+
 
 def get_piece_pages():
     """
@@ -42,10 +42,12 @@ def get_piece_pages():
             unique_urls.append(u)
     return unique_urls
 
+
 def fetch_piece_page(piece_url):
     resp = session.get(piece_url, timeout=20)
     resp.raise_for_status()
     return BeautifulSoup(resp.text, "html.parser")
+
 
 def find_pdf_link(piece_url, soup=None):
     """
@@ -60,6 +62,7 @@ def find_pdf_link(piece_url, soup=None):
     pdf_href = a_tag.get("href")
     pdf_url = urljoin(piece_url, pdf_href)
     return pdf_url
+
 
 def extract_piece_metadata(piece_url, soup=None, allowed_keys=None) -> MusicalPiece:
     """
@@ -94,10 +97,10 @@ def extract_piece_metadata(piece_url, soup=None, allowed_keys=None) -> MusicalPi
         "Source": "source",
         "Copyright": "copyright",
         "Last updated": "last_updated",
-        "Music ID Number": "music_id_number"
+        "Music ID Number": "music_id_number",
     }
 
-    #allowed_keys = set(allowed_keys) if allowed_keys else None
+    # allowed_keys = set(allowed_keys) if allowed_keys else None
     for td in table.find_all("td"):
         label_tag = td.find("b")
         if not label_tag:
@@ -107,8 +110,8 @@ def extract_piece_metadata(piece_url, soup=None, allowed_keys=None) -> MusicalPi
         # Skip unknown labels to avoid inserting None keys into metadata
         if not key:
             continue
-        #if not key or (allowed_keys is not None and key not in allowed_keys):
-            #continue
+        # if not key or (allowed_keys is not None and key not in allowed_keys):
+        # continue
         # Prefer the text right after the label, fallback to the rest of the cell
         value_node = label_tag.next_sibling
         if isinstance(value_node, NavigableString):
@@ -122,13 +125,11 @@ def extract_piece_metadata(piece_url, soup=None, allowed_keys=None) -> MusicalPi
     if pdf_url:
         payload["pdf_url"] = pdf_url
         payload["format"] = "PDF"
-        
+
     return MusicalPiece.model_validate(payload)
-   
-    
+
 
 def start_scrapping(max_pieces=None, delay=1.0):
-    
     piece_pages = get_piece_pages()
     if max_pieces is not None:
         piece_pages = piece_pages[:max_pieces]
@@ -140,11 +141,11 @@ def start_scrapping(max_pieces=None, delay=1.0):
         try:
             soup = fetch_piece_page(url)
             metadata = extract_piece_metadata(url, soup=soup)
-            print (f"  Metadata extracted. {len(metadata.model_dump())} fields found.")
+            print(f"  Metadata extracted. {len(metadata.model_dump())} fields found.")
             if metadata:
                 print(f"  Metadata: {metadata}")
                 piece_dao.insert_object_to_db(metadata)
-                
+
         except Exception as e:
             print("  Error:", e)
-        time.sleep(delay)  
+        time.sleep(delay)

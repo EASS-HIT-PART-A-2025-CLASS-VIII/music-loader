@@ -1,13 +1,12 @@
-
 import asyncio
 import os
 
-from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from pymongo.errors import PyMongoError
 
 from main import app
 from src.DI.container import get_db
+
 
 @app.get("/")
 async def read_root() -> dict[str, str]:
@@ -31,7 +30,9 @@ async def health() -> dict[str, str]:
             db_status = "ok"
             pieces_info: dict[str, str | int] = {}
             try:
-                count = await asyncio.to_thread(db.pieces_collection.count_documents, {})
+                count = await asyncio.to_thread(
+                    db.pieces_collection.count_documents, {}
+                )
                 if count == 0:
                     pieces_info = {
                         "status": "empty",

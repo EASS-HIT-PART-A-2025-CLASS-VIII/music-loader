@@ -1,5 +1,3 @@
-import types
-
 import pytest
 
 from src.database import database

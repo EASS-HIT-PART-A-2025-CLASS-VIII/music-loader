@@ -26,7 +26,9 @@ def test_get_piece_pages_deduplicates(monkeypatch):
 
 def test_fetch_piece_page_returns_soup(monkeypatch):
     html = "<html><body><h2>Title</h2></body></html>"
-    monkeypatch.setattr(mutopia.session, "get", lambda url, timeout=20: FakeResponse(html))
+    monkeypatch.setattr(
+        mutopia.session, "get", lambda url, timeout=20: FakeResponse(html)
+    )
     soup = mutopia.fetch_piece_page("http://example.com")
     assert soup.find("h2").text == "Title"
 
@@ -72,8 +74,12 @@ def test_start_scrapping_inserts_and_honors_limit(monkeypatch):
     monkeypatch.setattr(mutopia, "get_piece_pages", lambda: page_urls)
 
     soups = [
-        make_soup("<h2>First</h2><h4>by A</h4><table class='result-table'><tr><td><b>Instrument(s):</b> Piano</td></tr></table><a href='/a.pdf'>A4 PDF</a>"),
-        make_soup("<h2>Second</h2><h4>by B</h4><table class='result-table'><tr><td><b>Instrument(s):</b> Violin</td></tr></table><a href='/b.pdf'>A4 PDF</a>"),
+        make_soup(
+            "<h2>First</h2><h4>by A</h4><table class='result-table'><tr><td><b>Instrument(s):</b> Piano</td></tr></table><a href='/a.pdf'>A4 PDF</a>"
+        ),
+        make_soup(
+            "<h2>Second</h2><h4>by B</h4><table class='result-table'><tr><td><b>Instrument(s):</b> Violin</td></tr></table><a href='/b.pdf'>A4 PDF</a>"
+        ),
     ]
 
     def fake_fetch(url):
@@ -82,7 +88,9 @@ def test_start_scrapping_inserts_and_honors_limit(monkeypatch):
     monkeypatch.setattr(mutopia, "fetch_piece_page", fake_fetch)
 
     def fake_extract(url, soup=None):
-        return MusicalPiece.model_validate({"title": f"Title {url[-1]}", "instruments": "Piano"})
+        return MusicalPiece.model_validate(
+            {"title": f"Title {url[-1]}", "instruments": "Piano"}
+        )
 
     monkeypatch.setattr(mutopia, "extract_piece_metadata", fake_extract)
 
