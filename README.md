@@ -64,7 +64,7 @@ brew services start mongodb-community
 Call once Mongo is up:
 ```
 GET http://localhost:8000/start-scrapping        # uses MAX_PIECES default
-GET http://localhost:8000/start-scrapping?max_pieces=10
+GET http://localhost:8000/{max_pieces}  #write you own number of pieces in the request
 ```
 By default only 20 pieces are scraped (see `config.MAX_PIECES`).
 
@@ -77,11 +77,8 @@ By default only 20 pieces are scraped (see `config.MAX_PIECES`).
 
 
 ## Additional Information
-- **Architecture**: Designed to scale with new formats (MIDI, XML, etc.) by adding a `SpecificFormatDAO -> CorrespondingRepository -> CorrespondingDbTable -> GeneralDatabase` chain. Repositories/tables are created automatically when introducing a new format class.
+- **Architecture**: Designed to allow scaling with new formats (MIDI, XML, etc.) by adding:  
+`SpecificFormatDAO -> CorrespondingRepository -> CorrespondingDbTable -> GeneralDatabase` chain. 
+Repositories/tables are created automatically when introducing a new format class.
+
 - **DI & Lifespan**: Shared resources are managed via a manual DI container and FastAPI lifespan to avoid recreating expensive objects.
-- **Deployment options**:
-  - Docker Compose: runs app + Mongo together.
-  - Local run: start `mongodb-community` locally or use Atlas; configure `MONGO_URI`/`MONGO_CURRENT_DB` (or Atlas URI).
-  - Hosted (e.g., Render): supply a Mongo service/Atlas connection string (include credentials).
-- **Mongo URIs**: inside docker-compose use `mongodb://mongo:27017`; from host use `mongodb://localhost:27017`.
-- **Scraping**: Trigger `GET /start-scrapping` (optionally `?max_pieces=`). Defaults to 20 pieces (`config.MAX_PIECES`) so you can test quickly.

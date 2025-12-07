@@ -46,10 +46,13 @@ def test_start_scrapping_endpoint_invokes_scraper(monkeypatch):
         called["args"] = (max_pieces, delay)
 
     monkeypatch.setattr(routes.mutopia, "start_scrapping", fake_start_scrapping)
+    tasks = routes.BackgroundTasks()
 
-    result = asyncio.run(routes.start_scrapping_endpoint())
-    assert result == {"status": "started"}
-    assert called["args"][0] == routes.config.MAX_PIECES
+    result = asyncio.run(routes.start_scrapping_endpoint(tasks))
+    assert result == {"status": "started", "max_pieces": routes.config.MAX_PIECES}
+    assert len(tasks.tasks) == 1
+    assert tasks.tasks[0].func is fake_start_scrapping
+    assert tasks.tasks[0].kwargs["max_pieces"] == routes.config.MAX_PIECES
 
 
 def test_start_scrapping_endpoint_respects_query_param(monkeypatch):
@@ -59,7 +62,9 @@ def test_start_scrapping_endpoint_respects_query_param(monkeypatch):
         called["args"] = (max_pieces, delay)
 
     monkeypatch.setattr(routes.mutopia, "start_scrapping", fake_start_scrapping)
+    tasks = routes.BackgroundTasks()
 
-    result = asyncio.run(routes.start_scrapping_endpoint(max_pieces=5))
-    assert result == {"status": "started"}
-    assert called["args"][0] == 5
+    result = asyncio.run(routes.start_scrapping_endpoint(tasks, max_pieces=5))
+    assert result == {"status": "started", "max_pieces": 5}
+    assert len(tasks.tasks) == 1
+    assert tasks.tasks[0].kwargs["max_pieces"] == 5

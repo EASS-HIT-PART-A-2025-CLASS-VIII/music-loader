@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pymongo.errors import PyMongoError
 
 import src.config as config
@@ -20,18 +20,11 @@ async def get_pieces_by_style(style: str) -> list[dict]:
 
 
 @router.get("/start-scrapping")
-async def start_scrapping_endpoint():
+async def start_scrapping_endpoint(background_tasks: BackgroundTasks, max_pieces: int | None = None):
     print("Starting scrapping...")
-    mutopia.start_scrapping(max_pieces=config.MAX_PIECES, delay=config.SCRAPPING_DELAY)
-    return {"status": "started"}
-
-
-@router.get("/start-scrapping/{max_pieces}")
-async def start_scrapping_endpoint(max_pieces: int):
-    print("Starting scrapping...")
-    mutopia.start_scrapping(max_pieces=max_pieces, delay=config.SCRAPPING_DELAY)
-    return {"status": "started"}
-
+    limit = max_pieces if max_pieces is not None else config.MAX_PIECES
+    background_tasks.add_task(mutopia.start_scrapping, max_pieces=limit, delay=config.SCRAPPING_DELAY)
+    return {"status": "started", "max_pieces": limit}
 
 
 @router.get("/pieces/title/{title}")
