@@ -27,6 +27,12 @@ async def start_scrapping_endpoint(background_tasks: BackgroundTasks, max_pieces
     return {"status": "started", "max_pieces": limit}
 
 
+@router.get("/start-scrapping/{max_pieces}")
+async def start_scrapping_endpoint(max_pieces: int):
+    print("Starting scrapping...")
+    mutopia.start_scrapping(max_pieces=max_pieces, delay=config.SCRAPPING_DELAY)
+    return {"status": "started"}
+
 @router.get("/pieces/title/{title}")
 async def get_pieces_by_name(title: str) -> list[dict]:
     try:
