@@ -19,12 +19,18 @@ class Repository:
         if "_id" in payload:
             payload["_id"] = str(payload["_id"])
         try:
-            return self.model_cls.model_validate(payload).model_dump()
+            # Use aliases so Mongo _id remains present for callers; add a small safety
+            # net to reattach _id if the alias is ever omitted.
+            piece = self.model_cls.model_validate(payload)
+            data = piece.model_dump(by_alias=True)
+            if "_id" not in data and "db_id" in data:
+                data["_id"] = data["db_id"]
+            return data
         except ValidationError:
             return None
 
     def insert_object_to_db(self, obj: BaseModel):
-        self.collection.insert_one(obj.model_dump())
+        self.collection.insert_one(obj.model_dump(by_alias=True))
 
     def delete_all_objects_from_db(self):
         self.collection.delete_many({})
