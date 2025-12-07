@@ -29,10 +29,23 @@ async def health() -> dict[str, str]:
         try:
             await asyncio.to_thread(db.client.admin.command, "ping")
             db_status = "ok"
+            pieces_info: dict[str, str | int] = {}
+            try:
+                count = await asyncio.to_thread(db.pieces_collection.count_documents, {})
+                if count == 0:
+                    pieces_info = {
+                        "status": "empty",
+                        "message": "No pieces found; run /start-scrapping first.",
+                    }
+                else:
+                    pieces_info = {"status": "present", "count": count}
+            except Exception:
+                pieces_info = {"status": "unknown"}
         except PyMongoError:
             db_status = "unhealthy"
-        return {"status": "ok", "db": db_status}
-    return {"status": "ok", "db": "skipped"}
+            pieces_info = {"status": "unknown"}
+        return {"status": "ok", "db": db_status, "pieces": pieces_info}
+    return {"status": "ok", "db": "skipped", "pieces": "skipped"}
 
 
 @app.head("/health", include_in_schema=False)

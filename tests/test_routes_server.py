@@ -14,17 +14,26 @@ def test_read_root():
 
 def test_health_skips_db(monkeypatch):
     monkeypatch.setenv("HEALTHCHECK_DB", "false")
-    assert asyncio.run(server.health()) == {"status": "ok", "db": "skipped"}
+    assert asyncio.run(server.health()) == {"status": "ok", "db": "skipped", "pieces": "skipped"}
     assert asyncio.run(server.health_head()) == {}
 
 
 def test_health_reports_ok(monkeypatch):
     monkeypatch.setenv("HEALTHCHECK_DB", "true")
     client = SimpleNamespace(admin=SimpleNamespace(command=lambda *_args: {"ok": 1}))
-    monkeypatch.setattr(server, "get_db", lambda: SimpleNamespace(client=client))
+    pieces_collection = SimpleNamespace(count_documents=lambda *_args: 2)
+    monkeypatch.setattr(
+        server,
+        "get_db",
+        lambda: SimpleNamespace(client=client, pieces_collection=pieces_collection),
+    )
 
     result = asyncio.run(server.health())
-    assert result == {"status": "ok", "db": "ok"}
+    assert result == {
+        "status": "ok",
+        "db": "ok",
+        "pieces": {"status": "present", "count": 2},
+    }
 
 
 def test_health_reports_unhealthy(monkeypatch):
@@ -34,10 +43,15 @@ def test_health_reports_unhealthy(monkeypatch):
         raise PyMongoError("no ping")
 
     client = SimpleNamespace(admin=SimpleNamespace(command=failing_command))
-    monkeypatch.setattr(server, "get_db", lambda: SimpleNamespace(client=client))
+    pieces_collection = SimpleNamespace(count_documents=lambda *_args: 0)
+    monkeypatch.setattr(
+        server,
+        "get_db",
+        lambda: SimpleNamespace(client=client, pieces_collection=pieces_collection),
+    )
 
     result = asyncio.run(server.health())
-    assert result == {"status": "ok", "db": "unhealthy"}
+    assert result == {"status": "ok", "db": "unhealthy", "pieces": {"status": "unknown"}}
 
 
 def test_favicon_returns_file_response():

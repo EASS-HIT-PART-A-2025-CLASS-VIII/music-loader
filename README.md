@@ -1,41 +1,25 @@
 # Music Sheets API
-#General informations:
-FastAPI service backed by MongoDB that scrapes music sheets as PDF or various formats and serves it via HTTP.
-The API helps finding easily music sheets by title, musical genre, or composer.
-IMPORTANT TO KNOW: The code is written in a scalable way to allow many new features.
-For example as version 1.0 only PDF format from Mutopia Project can be scrapped and added to our database ~ 1700 pieces.
-But further will bve implemented MIDI, XML Formats, etc for interactive content (play the piece interactively for learning etc.., allow modification, AI full song production from base sheets etc..)
-Those feature will be implemented easily thanks to current architecture: 
-SpecificFormatDAO->CorespondingRepository->CorespondingDbTable->GeneralDatabase
-
-The corresponding repository and db table are created automatically when creating a new Format class, by just indicating type and table,
-that way the implementation of compatibility to a new format is almost automated for already existing functions
-
-
-Singleton Usage & FastApi namespace: Most of the object that doesnt need to be recreated when using for different purpose will be created and served via a container via manual Dependency Injection backed by the new lifespan function from FASTAPI providing a namespace with a determined lifespan, allowing full optimization of ressource creation.
-
-1.The project can be build on docker with docker compose (including both mongodb & our app in one deployment)
-2.Or can be run locally( need to run first mongodb- community on computer and provide the localhost in the .env environment file or provide an URL for mongodb atlas to connect to cloud version of mongodb)
-
-3.As an alternative the project has been deployed on render and can be used already reaching the adress: https:// render..
-
-IMPORTANT: Read below to know how to run from each source
-
-FAST API Documents exist for all endpoints
-
-
-
+FastAPI service backed by MongoDB that scrapes music sheets (Mutopia) and serves metadata over HTTP.
 
 ## Prerequisites
 - Python 3.11+
-- Docker & docker-compose (for containerized runs) -> MACOS: "brew install docker-compose" sudo apt install docker-compose
-- MongoDB 7+ (if running locally without Docker) -> MACOS: "brew install mongodb-community" in Terminal App // s
+- Docker & docker-compose (for containerized runs)
+- MongoDB 7+ (local or Atlas connection string)
+
+### Required environment
+Set at least:
+```
+MONGO_URI="mongodb://localhost:27017"   # or mongodb://mongo:27017 inside docker-compose
+MONGO_CURRENT_DB="music_sheets_db"
+```
 
 ## Running with Docker Compose
+Launch Docker and run:
+
 ```bash
 docker compose up --build
 ```
-This starts MongoDB and the app. API is at http://localhost:8000. MongoDB is at mongodb://localhost:27017.
+This starts MongoDB and the app. API: http://localhost:8000. MongoDB (from host): mongodb://localhost:27017. Inside the compose network use mongodb://mongo:27017.
 
 ## Running locally (app + Mongo in Docker)
 1) Start MongoDB in Docker:
@@ -49,16 +33,22 @@ docker run -d --name mongo \
 export MONGO_URI="mongodb://localhost:27017"
 export MONGO_CURRENT_DB="music_sheets_db"
 ```
-3) Create venv and install deps:
+3) (OPTIONAL) Create venv and install deps (for manual control):
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 4) Run the API:
+If you skipped 3 (let uv manage dependencies at each run):
+```bash
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+Else (after activating venv in step 3):
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
 
 ## Running everything locally (Mongo installed on host)
 1) Install MongoDB:
@@ -71,14 +61,27 @@ brew services start mongodb-community
 3) Create venv, install deps, run uvicorn as above.
 
 ## Triggering scraping
-Call the scrape endpoint once Mongo is up:
+Call once Mongo is up:
 ```
-GET http://localhost:8000/start-scrapping
+GET http://localhost:8000/start-scrapping        # uses MAX_PIECES default
+GET http://localhost:8000/start-scrapping?max_pieces=10
 ```
-This will fetch metadata and store it in MongoDB.
+By default only 20 pieces are scraped (see `config.MAX_PIECES`).
+
 
 ## Key Endpoints
 - `GET /health` – app and DB status
 - `GET /pieces/styles/{style}` – list pieces by style
 - `GET /pieces/title/{title}` – list pieces matching title substring
-- `GET /start-scrapping` – start scraping Mutopia metadata
+- `GET /start-scrapping` – start scraping Mutopia metadata (optional `max_pieces` query)
+
+
+## Additional Information
+- **Architecture**: Designed to scale with new formats (MIDI, XML, etc.) by adding a `SpecificFormatDAO -> CorrespondingRepository -> CorrespondingDbTable -> GeneralDatabase` chain. Repositories/tables are created automatically when introducing a new format class.
+- **DI & Lifespan**: Shared resources are managed via a manual DI container and FastAPI lifespan to avoid recreating expensive objects.
+- **Deployment options**:
+  - Docker Compose: runs app + Mongo together.
+  - Local run: start `mongodb-community` locally or use Atlas; configure `MONGO_URI`/`MONGO_CURRENT_DB` (or Atlas URI).
+  - Hosted (e.g., Render): supply a Mongo service/Atlas connection string (include credentials).
+- **Mongo URIs**: inside docker-compose use `mongodb://mongo:27017`; from host use `mongodb://localhost:27017`.
+- **Scraping**: Trigger `GET /start-scrapping` (optionally `?max_pieces=`). Defaults to 20 pieces (`config.MAX_PIECES`) so you can test quickly.

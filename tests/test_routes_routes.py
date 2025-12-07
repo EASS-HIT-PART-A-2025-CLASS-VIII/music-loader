@@ -50,3 +50,16 @@ def test_start_scrapping_endpoint_invokes_scraper(monkeypatch):
     result = asyncio.run(routes.start_scrapping_endpoint())
     assert result == {"status": "started"}
     assert called["args"][0] == routes.config.MAX_PIECES
+
+
+def test_start_scrapping_endpoint_respects_query_param(monkeypatch):
+    called = {}
+
+    def fake_start_scrapping(max_pieces, delay):
+        called["args"] = (max_pieces, delay)
+
+    monkeypatch.setattr(routes.mutopia, "start_scrapping", fake_start_scrapping)
+
+    result = asyncio.run(routes.start_scrapping_endpoint(max_pieces=5))
+    assert result == {"status": "started"}
+    assert called["args"][0] == 5
