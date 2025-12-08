@@ -20,7 +20,9 @@ Launch Docker and run:
 ```bash
 docker compose up --build
 ```
-This starts MongoDB and the app. API: http://localhost:8000. MongoDB (from host): mongodb://localhost:27017. Inside the compose network use mongodb://mongo:27017.
+This starts MongoDB and the app. API: http://localhost:8000. 
+MongoDB (from host): mongodb://localhost:27017. 
+Inside the compose network use mongodb://mongo:27017.
 
 ## Running locally (app + Mongo in Docker)
 1) Start MongoDB in Docker:
@@ -73,12 +75,21 @@ By default only 20 pieces are scraped (see `config.MAX_PIECES`).
 
 ## Key Endpoints
 - `GET /health` – app and DB status
-- `GET /pieces/styles/{style}` – list pieces by style
-- `GET /pieces/title/{title}` – list pieces matching title substring
 - `GET /start-scrapping` – start scraping Mutopia metadata (optional `max_pieces` query)
+- `GET /pieces/` – list all pieces
+- `GET /pieces/number ` - get the number of pieces in the database
+- `GET /pieces/styles/{style}` – list pieces by style that match the "style" key
+- `GET /pieces/title/{title}` – list pieces matching title substring
 
+- 
+
+  Many others endpoints will be created very soon
+
+More informations about the Endpoints:
+BaseUrl/docs
 
 ## Additional Information
+
 - **Architecture**: Designed to allow scaling with new formats (MIDI, XML, etc.) by adding:  
 `SpecificFormatDAO -> CorrespondingRepository -> CorrespondingDbTable -> GeneralDatabase` chain. 
 Repositories/tables are created automatically when introducing a new format class.
