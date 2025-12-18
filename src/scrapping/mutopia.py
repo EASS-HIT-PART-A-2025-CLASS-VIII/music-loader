@@ -1,10 +1,12 @@
 import time
 from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup, NavigableString
-from src.utils import util
-from src.schemas.models import MusicalPiece
+
 from src.DI.container import get_piece_dao
+from src.schemas.models import MusicalPiece
+from src.utils import util
 
 piece_dao = get_piece_dao()
 
@@ -16,14 +18,22 @@ session = requests.Session()
 session.headers["User-Agent"] = "MutopiaA4Scraper/1.0 (personal use)"
 
 
+def _make_soup(resp: requests.Response) -> BeautifulSoup:
+    """
+    Normalize response encoding before parsing so UTF-8 accents don't turn
+    into mojibake (e.g., 'PiÃ¨ces' instead of 'Pièces').
+    """
+    resp.encoding = resp.apparent_encoding or resp.encoding or "utf-8"
+    return BeautifulSoup(resp.text, "html.parser")
+
+
 def get_piece_pages():
     """
-    Récupère toutes les URLs de pages de pièces
-    depuis piece-list.html
+    Récupère toutes les URLs de pages de pièces depuis piece-list.html.
     """
     resp = session.get(PIECE_LIST_URL, timeout=20)
     resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "html.parser")
+    soup = _make_soup(resp)
 
     urls = []
     # Dans piece-list.html, chaque pièce est un lien numéroté vers cgibin/piece-info.cgi?id=XXX
@@ -46,7 +56,7 @@ def get_piece_pages():
 def fetch_piece_page(piece_url):
     resp = session.get(piece_url, timeout=20)
     resp.raise_for_status()
-    return BeautifulSoup(resp.text, "html.parser")
+    return _make_soup(resp)
 
 
 def find_pdf_link(piece_url, soup=None):
@@ -111,7 +121,7 @@ def extract_piece_metadata(piece_url, soup=None, allowed_keys=None) -> MusicalPi
         if not key:
             continue
         # if not key or (allowed_keys is not None and key not in allowed_keys):
-        # continue
+        #     continue
         # Prefer the text right after the label, fallback to the rest of the cell
         value_node = label_tag.next_sibling
         if isinstance(value_node, NavigableString):

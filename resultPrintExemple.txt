@@ -1,0 +1,64 @@
+Starting FastAPI server...
+AgentRunResult(output='```json\n[\n  {"time": "0:0:0", "note": "F4", "duration": "8n", "velocity": 0.6},\n  {"time": "0:0:2", "note": "F4", "duration": "8n", "velocity": 0.6},\n  {"time": "0:1:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "0:1:2", "note": "Ab4", "duration": "8n", "velocity": 0.6},\n  {"time": "0:2:0", "note": "Ab4", "duration": "8n", "velocity": 0.6},\n  {"time": "0:3:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "0:3:2", "note": "F4", "duration": "8n", "velocity": 0.6},\n  {"time": "1:0:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "1:0:2", "note": "E4", "duration": "16n", "velocity": 0.6},\n  {"time": "1:0:3", "note": "F4", "duration": "16n", "velocity": 0.6},\n  {"time": "1:1:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "1:2:0", "note": "F4", "duration": "8n", "velocity": 0.6},\n  {"time": "1:2:2", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "1:3:0", "note": "Ab4", "duration": "8n", "velocity": 0.6},\n  {"time": "1:3:2", "note": "Bb4", "duration": "8n", "velocity": 0.6},\n  {"time": "2:0:0", "note": "Ab4", "duration": "8n", "velocity": 0.6},\n  {"time": "2:1:0", "note": "F4", "duration": "8n", "velocity": 0.6},\n  {"time": "2:1:2", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "2:2:0", "note": "Ab4", "duration": "8n", "velocity": 0.6},\n  {"time": "2:3:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "2:3:2", "note": "F4", "duration": "8n", "velocity": 0.6},\n  {"time": "3:0:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "3:0:2", "note": "E4", "duration": "16n", "velocity": 0.6},\n  {"time": "3:0:3", "note": "F4", "duration": "16n", "velocity": 0.6},\n  {"time": "3:1:0", "note": "G4", "duration": "8n", "velocity": 0.6},\n  {"time": "4:0:0", "note": "Ab4", "duration": "8n", "velocity": 0.8},\n  {"time": "4:0:2", "note": "G4", "duration": "8n", "velocity": 0.8},\n  {"time": "4:1:0", "note": "F4", "duration": "8n", "velocity": 0.8},\n  {"time": "4:1:2", "note": "E4", "duration": "16n", "velocity": 0.8},\n  {"time": "4:1:3", "note": "F4", "duration": "16n", "velocity": 0.8},\n  {"time": "4:2:0", "note": "G4", "duration": "8n", "velocity": 0.8},\n  {"time": "5:0:0", "note": "Ab4", "duration": "8n", "velocity": 0.8},\n  {"time": "5:0:2", "note": "G4", "duration": "8n", "velocity": 0.8},\n  {"time": "5:1:0", "note": "F4", "duration": "8n", "velocity": 0.8},\n  {"time": "5:1:2", "note": "E4", "duration": "16n", "velocity": 0.8},\n  {"time": "5:1:3", "note": "F4", "duration": "16n", "velocity": 0.8},\n  {"time": "5:2:0", "note": "G4", "duration": "8n", "velocity": 0.8},\n  {"time": "6:0:0", "note": "F4", "duration": "8n", "velocity": 0.9},\n  {"time": "6:0:2", "note": "G4", "duration": "8n", "velocity": 0.9},\n  {"time": "6:1:0", "note": "Ab4", "duration": "8n", "velocity": 0.9},\n  {"time": "6:1:2", "note": "Bb4", "duration": "8n", "velocity": 0.9},\n  {"time": "6:2:0", "note": "C5", "duration": "8n", "velocity": 0.9},\n  {"time": "6:2:2", "note": "Db5", "duration": "8n", "velocity": 0.9},\n  {"time": "6:3:0", "note": "Eb5", "duration": "8n", "velocity": 0.9},\n  {"time": "6:3:2", "note": "F5", "duration": "8n", "velocity": 0.9}\n]\n```')
+
+
+
+
+
+```json
+[
+  {"time": "0:0:0", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "0:0:1", "note": "F#5", "duration": "16n", "velocity": 0.6},
+  {"time": "0:0:2", "note": "G#5", "duration": "16n", "velocity": 0.6},
+  {"time": "0:0:3", "note": "F#5", "duration": "16n", "velocity": 0.6},
+  {"time": "0:1:0", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "0:1:2", "note": "D#5", "duration": "16n", "velocity": 0.6},
+  {"time": "0:2:0", "note": "E5", "duration": "8n", "velocity": 0.6},
+  {"time": "0:2:2", "note": "D#5", "duration": "8n", "velocity": 0.6},
+  {"time": "0:3:0", "note": "E5", "duration": "8n", "velocity": 0.6},
+  {"time": "0:3:2", "note": "B4", "duration": "8n", "velocity": 0.6},
+  {"time": "1:0:0", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "1:0:1", "note": "F#5", "duration": "16n", "velocity": 0.6},
+  {"time": "1:0:2", "note": "G#5", "duration": "16n", "velocity": 0.6},
+  {"time": "1:0:3", "note": "F#5", "duration": "16n", "velocity": 0.6},
+  {"time": "1:1:0", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "1:1:2", "note": "D#5", "duration": "16n", "velocity": 0.6},
+  {"time": "1:2:0", "note": "E5", "duration": "8n", "velocity": 0.6},
+  {"time": "1:2:2", "note": "D#5", "duration": "8n", "velocity": 0.6},
+  {"time": "1:3:0", "note": "E5", "duration": "8n", "velocity": 0.6},
+  {"time": "1:3:2", "note": "B4", "duration": "8n", "velocity": 0.6},
+  {"time": "2:0:0", "note": "E5", "duration": "4n", "velocity": 0.5},
+  {"time": "2:2:0", "note": "E4", "duration": "16n", "velocity": 0.6},
+  {"time": "2:2:1", "note": "G#4", "duration": "16n", "velocity": 0.6},
+  {"time": "2:2:2", "note": "B4", "duration": "16n", "velocity": 0.6},
+  {"time": "2:2:3", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "2:3:0", "note": "G#5", "duration": "16n", "velocity": 0.6},
+  {"time": "2:3:1", "note": "B5", "duration": "16n", "velocity": 0.6},
+  {"time": "2:3:2", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "2:3:3", "note": "G#5", "duration": "16n", "velocity": 0.6},
+  {"time": "3:0:0", "note": "B5", "duration": "8n", "velocity": 0.5},
+  {"time": "3:1:0", "note": "E5", "duration": "8n", "velocity": 0.5},
+  {"time": "3:2:0", "note": "E4", "duration": "16n", "velocity": 0.6},
+  {"time": "3:2:1", "note": "G#4", "duration": "16n", "velocity": 0.6},
+  {"time": "3:2:2", "note": "B4", "duration": "16n", "velocity": 0.6},
+  {"time": "3:2:3", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "3:3:0", "note": "G#5", "duration": "16n", "velocity": 0.6},
+  {"time": "3:3:1", "note": "B5", "duration": "16n", "velocity": 0.6},
+  {"time": "3:3:2", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "3:3:3", "note": "G#5", "duration": "16n", "velocity": 0.6},
+  {"time": "4:0:0", "note": "B4", "duration": "8n", "velocity": 0.5},
+  {"time": "4:1:0", "note": "E5", "duration": "8n", "velocity": 0.5},
+  {"time": "4:2:0", "note": "E4", "duration": "16n", "velocity": 0.6},
+  {"time": "4:2:1", "note": "G#4", "duration": "16n", "velocity": 0.6},
+  {"time": "4:2:2", "note": "B4", "duration": "16n", "velocity": 0.6},
+  {"time": "4:2:3", "note": "E5", "duration": "16n", "velocity": 0.6},
+  {"time": "4:3:0", "note": "B4", "duration": "16n", "velocity": 0.6},
+  {"time": "4:3:1", "note": "C#5", "duration": "16n", "velocity": 0.6},
+  {"time": "4:3:2", "note": "D#5", "duration": "16n", "velocity": 0.6},
+  {"time": "4:3:3", "note": "F#5", "duration": "16n", "velocity": 0.6},
+  {"time": "5:0:0", "note": "A5", "duration": "8n", "velocity": 0.6},
+  {"time": "5:1:0", "note": "F#5", "duration": "8n", "velocity": 0.6},
+  {"time": "5:2:0", "note": "D#5", "duration": "8n", "velocity": 0.6},
+  {"time": "5:3:0", "note": "F#5", "duration": "8n", "velocity": 0.6}
+]
+```

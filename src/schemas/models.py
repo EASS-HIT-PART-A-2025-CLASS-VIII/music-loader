@@ -1,3 +1,4 @@
+import json
 from fastapi import logger
 from pydantic import BaseModel, Field, field_validator
 
@@ -15,7 +16,9 @@ class MusicalPiece(BaseModel):
     music_id_number: str | None = None
     pdf_url: str | None = None
     format: str | None = None
+    notes: list[dict] | None = None
     db_id: str | None = Field(default=None, alias="_id")
+    
 
     @field_validator("title")
     def title_must_not_be_empty(cls, v: str) -> str:
@@ -28,6 +31,22 @@ class MusicalPiece(BaseModel):
         if v is not None and not v.strip():
             raise ValueError("PDF URL must not be empty if provided")
         return v
+
+    @field_validator("notes", mode="before")
+    def parse_notes_json(cls, v):
+        """
+        Accept notes as a JSON string (e.g., stored raw from AI) or a list.
+        """
+        if v is None:
+            return v
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"notes must be JSON array or list: {exc}") from exc
+        if isinstance(v, list):
+            return v
+        raise ValueError("notes must be a list or JSON string representing a list")
 
     model_config = {"populate_by_name": True}
 

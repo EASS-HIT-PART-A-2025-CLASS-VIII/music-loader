@@ -29,6 +29,22 @@ def is_pdf_text(text):
     return "a4" in t and "pdf" in t
 
 
+def fix_mojibake(text: str) -> str:
+    """
+    Fix common UTF-8/latin-1 mojibake (e.g., 'PiÃ¨ces' -> 'Pièces').
+    Only applies the fix when obvious mojibake markers are present.
+    """
+    if not text or not isinstance(text, str):
+        return text
+    markers = ("Ã", "â\x80", "Â")
+    if not any(m in text for m in markers):
+        return text
+    try:
+        return text.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
 def download_pdf(pdf_url, dest_dir):
     """
     Télécharge un PDF vers dest_dir en gardant le nom de fichier.

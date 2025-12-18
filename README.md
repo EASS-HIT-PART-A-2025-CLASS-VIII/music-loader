@@ -62,6 +62,7 @@ brew services start mongodb-community
 ```
 2) Set env vars as above (`MONGO_URI`, `MONGO_CURRENT_DB`).
 3) Create venv, install deps, run uvicorn as above.
+4) python3 main.py
 
 ## Triggering scraping
 Call once Mongo is up:

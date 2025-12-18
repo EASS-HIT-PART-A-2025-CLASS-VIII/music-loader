@@ -4,6 +4,8 @@ from pymongo.errors import PyMongoError
 import src.config as config
 from src.DI.container import get_piece_dao
 from src.scrapping import mutopia
+from src.ai_agent_real.ai_agent import ai_pdf_to_notes
+from src.ai_agent_real.agent_instance import get_agent
 
 
 router = APIRouter()
@@ -17,7 +19,18 @@ async def get_pieces_by_style(style: str) -> list[dict]:
         return [piece for piece in pieces]
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
 
+@router.get("/pieces/instruments/{instrument}")
+async def get_pieces_by_instrument(instrument: str) -> list[dict]:
+    try:
+        pieces = piece_dao.get_pieces_by_instrument(instrument)
+        return [piece for piece in pieces]
+    except PyMongoError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
 
 @router.get("/start-scrapping")
 async def start_scrapping_endpoint(
@@ -65,5 +78,31 @@ async def get_pieces_by_name(title: str) -> list[dict]:
     try:
         pieces = piece_dao.get_pieces_by_title(title)
         return [piece for piece in pieces]
+    except PyMongoError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/pieces/get_notes_with_ai/{piece_id}")
+async def get_notes_with_ai(piece_id: str) -> dict:
+    try:
+        piece = piece_dao.get_piece_by_id(piece_id)
+        if piece is None:
+            raise HTTPException(status_code=404, detail="Piece not found")
+        pdf_notes = piece.get("notes")
+        print(piece)
+        print("Existing notes:", pdf_notes)
+        
+        if pdf_notes is not None:
+            return {"notes": pdf_notes}
+        
+        pdf_url = piece.get("pdf_url")
+        if pdf_url is None:
+            raise HTTPException(status_code=404, detail="PDF URL not found for this piece")
+    
+
+        notes = await ai_pdf_to_notes(get_agent(), pdf_url)
+        piece_dao.update_notes(piece_id, notes)
+        
+        return {"notes": notes}
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))

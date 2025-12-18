@@ -1,8 +1,12 @@
 import re
 from typing import Optional, Type
 
+from bson import ObjectId
+from bson.errors import InvalidId
 from pydantic import BaseModel, ValidationError
 from pymongo.collection import Collection
+
+from src.utils.util import fix_mojibake
 
 
 class Repository:
@@ -18,6 +22,9 @@ class Repository:
         payload = dict(doc)
         if "_id" in payload:
             payload["_id"] = str(payload["_id"])
+        for key, value in payload.items():
+            if isinstance(value, str):
+                payload[key] = fix_mojibake(value)
         try:
             # Use aliases so Mongo _id remains present for callers; add a small safety
             # net to reattach _id if the alias is ever omitted.
@@ -49,6 +56,39 @@ class Repository:
                 objects.append(piece)
         return objects
 
+    def get_object_by_instrument(self, instrument: str) -> list[dict]:
+        variants = [instrument.lower(), instrument.capitalize(), instrument.upper()]
+        cursor = self.collection.find({"instruments": {"$in": variants}})
+        objects: list[dict] = []
+        for doc in cursor:
+            if piece := self._serialize(doc):
+                objects.append(piece)
+        return objects
+
+    def get_object_by_id(self, piece_id: str) -> dict | None:
+        doc = None
+        try:
+            doc = self.collection.find_one({"_id": ObjectId(piece_id)})
+        except (InvalidId, TypeError):
+            doc = self.collection.find_one({"_id": piece_id})
+        if doc is None:
+            return None
+        return self._serialize(doc)
+
     def get_all_objects(self) -> list[dict]:
         cursor = self.collection.find({})
         return [piece for doc in cursor if (piece := self._serialize(doc))]
+
+    def update_notes(self, piece_id: str, notes: list[dict]) -> None:
+        try:
+            print("Updating notes for piece objectid:", piece_id)
+            self.collection.update_one(
+                {"_id": ObjectId(piece_id)},
+                {"$set": {"notes": notes}},
+            )
+        except (InvalidId, TypeError):
+            print("Updating notes for piece id:", piece_id)
+            self.collection.update_one(
+                {"_id": piece_id},
+                {"$set": {"notes": notes}},
+            )

@@ -25,3 +25,12 @@ class MusicalPieceDAO:
 
     def get_pieces_by_style(self, style: str) -> list[dict]:
         return self.repository.get_object_by_style(style)
+    
+    def get_pieces_by_instrument(self, instrument: str) -> list[dict]:
+        return self.repository.get_object_by_instrument(instrument)
+    
+    def get_piece_by_id(self, piece_id: str) -> dict | None:
+        return self.repository.get_object_by_id(piece_id)
+
+    def update_notes(self, piece_id: str, notes: list[dict]) -> None:
+        self.repository.update_notes(piece_id, notes)
