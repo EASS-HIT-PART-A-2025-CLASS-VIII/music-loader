@@ -428,7 +428,7 @@ function App() {
 
                         {statusMessage && <p>{statusMessage}</p>}
                       </div>
-                      <img src="https://cdn.helloasso.com/images/header_public/badge-helloasso.svg" alt="Badge" style={{ width: '100px', height: 'auto', flexShrink: 0, marginLeft: '15px' }} />
+                      <img src={piece.image_url} alt="https://picsum.photos/200/200?random=1" style={{ width: '100px', height: 'auto', flexShrink: 0, marginLeft: '15px' }} />
                     </div>
                   ))}
                 </div>

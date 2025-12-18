@@ -26,10 +26,12 @@ async def ai_pdf_to_notes(agent, pdf_url: str):
 
 -You don't need to explain anything, just return the json array as in the exemple and no comments, nothing else that would prevent a direct use/parsing of the result.
 -include all notes you can read from the PDF (both treble and bass clefs if present).
+-Allow Polyphony (multiple notes at the same time).
 -For now only use the beginning of the piece (first 30 seconds max or less or anything that is in your capability).
 -Don't include anything else than the json array, not even backticks or quotes. Don't write ```json ``` or anything juste the array starting with '[' and ending with ']' (without ' characters).
 -No Markdown code fences ! just the content of the json.
 -Take into considerations the tempo and time signature indicated on the sheet to compute the time values correctly.
+-If the tempo or time signature are not indicated, guess correctly the tempo or assume a default tempo of 120bpm and a 4/4 time signature.
     """
     
     

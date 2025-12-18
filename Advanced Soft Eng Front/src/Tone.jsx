@@ -29,7 +29,7 @@ export async function ToneExample(piece) {
     }
 
     const part = new Tone.Part((time, value) => {
-      pianoSampler.triggerAttackRelease(value.note, value.duration, time, value.velocity);
+      pianoSampler.triggerAttackRelease(value.note, (value.duration)*2, time*3, value.velocity);
     }, piece);
 
     part.start(0);

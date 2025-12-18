@@ -37,7 +37,17 @@ class Repository:
             return None
 
     def insert_object_to_db(self, obj: BaseModel):
-        self.collection.insert_one(obj.model_dump(by_alias=True))
+        # Avoid inserting a null _id; let Mongo assign one.
+        payload = obj.model_dump(by_alias=True, exclude_none=True)
+        if payload.get("_id") is None:
+            payload.pop("_id", None)
+        self.collection.insert_one(payload)
+
+    def get_object_by_field(self, field: str, value: str) -> dict | None:
+        doc = self.collection.find_one({field: value})
+        if doc is None:
+            return None
+        return self._serialize(doc)
 
     def delete_all_objects_from_db(self):
         self.collection.delete_many({})

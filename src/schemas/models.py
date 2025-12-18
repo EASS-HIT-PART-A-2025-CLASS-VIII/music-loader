@@ -17,7 +17,9 @@ class MusicalPiece(BaseModel):
     pdf_url: str | None = None
     format: str | None = None
     notes: list[dict] | None = None
+    image_url: str | None = None
     db_id: str | None = Field(default=None, alias="_id")
+   
     
 
     @field_validator("title")
@@ -47,6 +49,12 @@ class MusicalPiece(BaseModel):
         if isinstance(v, list):
             return v
         raise ValueError("notes must be a list or JSON string representing a list")
+    
+    @field_validator("image_url")
+    def image_url_must_be_a_string(cls, v: str) -> str:
+        if v is not None and not isinstance(v, str):
+            raise ValueError("Image URL must be a valid string")
+        return v
 
     model_config = {"populate_by_name": True}
 

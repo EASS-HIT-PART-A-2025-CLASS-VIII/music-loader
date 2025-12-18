@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, NavigableString
 from src.DI.container import get_piece_dao
 from src.schemas.models import MusicalPiece
 from src.utils import util
+from src.scrapping.image_api import search_images
 
 piece_dao = get_piece_dao()
 
@@ -151,10 +152,24 @@ def start_scrapping(max_pieces=None, delay=1.0):
         try:
             soup = fetch_piece_page(url)
             metadata = extract_piece_metadata(url, soup=soup)
+            
             print(f"  Metadata extracted. {len(metadata.model_dump())} fields found.")
             if metadata:
                 print(f"  Metadata: {metadata}")
-                piece_dao.insert_object_to_db(metadata)
+                metadata.image_url = search_images(f"{metadata.composer}")
+
+                # Skip insert if we already have the piece (dedupe on music_id_number or pdf_url).
+                duplicate = None
+                if metadata.music_id_number:
+                    duplicate = piece_dao.get_piece_by_music_id_number(metadata.music_id_number)
+                if not duplicate and metadata.pdf_url:
+                    duplicate = piece_dao.get_piece_by_pdf_url(metadata.pdf_url)
+
+                if duplicate:
+                    print("  Skipping insert; already exists with _id:", duplicate.get("_id"))
+                    delay=0
+                else:
+                    piece_dao.insert_object_to_db(metadata)
 
         except Exception as e:
             print("  Error:", e)

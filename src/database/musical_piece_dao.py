@@ -32,5 +32,12 @@ class MusicalPieceDAO:
     def get_piece_by_id(self, piece_id: str) -> dict | None:
         return self.repository.get_object_by_id(piece_id)
 
+    def get_piece_by_music_id_number(self, music_id_number: str) -> dict | None:
+        return self.repository.get_object_by_field("music_id_number", music_id_number)
+
+    def get_piece_by_pdf_url(self, pdf_url: str) -> dict | None:
+        return self.repository.get_object_by_field("pdf_url", pdf_url)
+
     def update_notes(self, piece_id: str, notes: list[dict]) -> None:
         self.repository.update_notes(piece_id, notes)
+        
