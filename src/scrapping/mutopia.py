@@ -156,7 +156,7 @@ def start_scrapping(max_pieces=None, delay=1.0):
             print(f"  Metadata extracted. {len(metadata.model_dump())} fields found.")
             if metadata:
                 print(f"  Metadata: {metadata}")
-                metadata.image_url = search_images(f"{metadata.composer}")
+                metadata.image_url = search_images(f"{metadata.style} {metadata.composer} music sheet {metadata.instruments}")
 
                 # Skip insert if we already have the piece (dedupe on music_id_number or pdf_url).
                 duplicate = None

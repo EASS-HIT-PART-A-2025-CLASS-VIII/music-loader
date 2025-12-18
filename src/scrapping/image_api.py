@@ -17,7 +17,6 @@ def search_images(query: str, per_page: int = 15) -> str:
     if not key:
         raise ValueError("Pexels API key missing. Set PEXELS_API_KEY env var")
 
-    full_query = query + " sheet music illustration"
     resp = requests.get(
         PEXELS_SEARCH_URL,
         headers={"Authorization": key},
