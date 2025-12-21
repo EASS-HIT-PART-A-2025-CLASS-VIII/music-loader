@@ -11,6 +11,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('title')
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
+  const [styles, setStyles] = useState(['Baroque', 'Classical', 'Romantic', 'Renaissance', 'Modern', 'Jazz', 'Folk', 'Song'])
+  const [instruments, setInstruments] = useState(['Piano', 'Violin', 'Cello', 'Flute', 'Guitar', 'Voice', 'Clarinet', 'Saxophone'])
   const [uploadForm, setUploadForm] = useState({
     title: '',
     composer: '',
@@ -25,9 +27,6 @@ function App() {
   const [playingPieceId, setPlayingPieceId] = useState(null)
   const [tempo, setTempoValue] = useState(120)
   const [mousePosition, setMousePosition] = useState({ x: 0 })
-
-  const styles = ['Baroque', 'Classical', 'Romantic', 'Renaissance', 'Modern', 'Jazz', 'Folk', 'Song']
-  const instruments = ['Piano', 'Violin', 'Cello', 'Flute', 'Guitar', 'Voice', 'Clarinet', 'Saxophone']
 
   const handleSearch = async (query) => {
     if (!query) {
@@ -69,12 +68,84 @@ function App() {
   useEffect(() => {
     if (activeTab === 'style' && selectedStyle) {
       handleSearch(selectedStyle)
+    } else if (activeTab === 'style' && !selectedStyle) {
+      setResults(null)
     }
   }, [selectedStyle, activeTab])
 
   useEffect(() => {
+    if (activeTab !== 'style') return
+    const fetchStyles = async () => {
+      try {
+        const response = await fetch('/styles')
+        if (!response.ok) {
+          throw new Error('Failed to fetch styles')
+        }
+        const data = await response.json()
+        // Accept multiple shapes: ["Jazz", ...], [{name/style: "Jazz"}, ...], or {styles: [...]}
+        const rawStyles = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.styles)
+            ? data.styles
+            : []
+        const normalized = rawStyles
+          .map((item) => {
+            if (typeof item === 'string') return item
+            if (typeof item?.name === 'string') return item.name
+            if (typeof item?.style === 'string') return item.style
+            return null
+          })
+          .filter(Boolean)
+          .map((s) => String(s).replace(/\//g, ' / '))
+        if (normalized.length) {
+          setStyles(normalized)
+        }
+      } catch (error) {
+        console.error('Error fetching styles:', error)
+      }
+    }
+    fetchStyles()
+  }, [activeTab])
+
+  useEffect(() => {
+    if (activeTab !== 'instrument') return
+    const fetchInstruments = async () => {
+      try {
+        const response = await fetch('/instruments')
+        if (!response.ok) {
+          throw new Error('Failed to fetch instruments')
+        }
+        const data = await response.json()
+        // Accept multiple shapes: ["Violin", ...], [{name/instrument: "Violin"}, ...], or {instruments: [...]}
+        const rawInstruments = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.instruments)
+            ? data.instruments
+            : []
+        const normalized = rawInstruments
+          .map((item) => {
+            if (typeof item === 'string') return item
+            if (typeof item?.name === 'string') return item.name
+            if (typeof item?.instrument === 'string') return item.instrument
+            return null
+          })
+          .filter(Boolean)
+          .map((s) => String(s).replace(/\//g, ' / '))
+        if (normalized.length) {
+          setInstruments(normalized)
+        }
+      } catch (error) {
+        console.error('Error fetching instruments:', error)
+      }
+    }
+    fetchInstruments()
+  }, [activeTab])
+
+  useEffect(() => {
     if (activeTab === 'instrument' && selectedInstrument) {
       handleSearch(selectedInstrument)
+    } else if (activeTab === 'instrument' && !selectedInstrument) {
+      setResults(null)
     }
   }, [selectedInstrument, activeTab])
 
@@ -400,14 +471,28 @@ function App() {
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <label style={{ fontWeight: 'bold' }}>Select a style:</label>
             {styles.map((style) => (
-              <button key={style} onClick={() => setSelectedStyle(style)} style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedStyle === style ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedStyle === style ? '#646cff' : 'transparent', color: selectedStyle === style ? 'white' : 'inherit', cursor: 'pointer' }}>{style}</button>
+              <button
+                key={style}
+                onClick={() => setSelectedStyle(selectedStyle === style ? '' : style)}
+                style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedStyle === style ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedStyle === style ? '#646cff' : 'transparent', color: selectedStyle === style ? 'white' : 'inherit', cursor: 'pointer' }}
+              >
+                {style}
+              </button>
             ))}
             </div>
           ) : (
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <label style={{ fontWeight: 'bold' }}>Select an instrument:</label>
-            {instruments.map((instrument) => (
-              <button key={instrument} onClick={() => setSelectedInstrument(instrument)} style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedInstrument === instrument ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedInstrument === instrument ? '#646cff' : 'transparent', color: selectedInstrument === instrument ? 'white' : 'inherit', cursor: 'pointer' }}>{instrument}</button>
+            {instruments
+              .filter((instrument) => !selectedInstrument || selectedInstrument === instrument)
+              .map((instrument) => (
+              <button
+                key={instrument}
+                onClick={() => setSelectedInstrument(selectedInstrument === instrument ? '' : instrument)}
+                style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedInstrument === instrument ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedInstrument === instrument ? '#646cff' : 'transparent', color: selectedInstrument === instrument ? 'white' : 'inherit', cursor: 'pointer' }}
+              >
+                {instrument}
+              </button>
             ))}
             </div>
           )}

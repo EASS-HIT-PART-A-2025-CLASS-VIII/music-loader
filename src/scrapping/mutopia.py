@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup, NavigableString
 
 from src.DI.container import get_piece_dao
-from src.schemas.models import MusicalPiece
+from src.schemas.musical_piece import MusicalPiece
 from src.utils import util
 from src.scrapping.image_api import search_images
 

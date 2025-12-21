@@ -1,4 +1,6 @@
+import re
 from pydantic_ai import DocumentUrl
+from src.schemas.agent_output import AgentOutput
 
 
 async def ai_pdf_to_notes(agent, pdf_url: str):
@@ -31,10 +33,18 @@ async def ai_pdf_to_notes(agent, pdf_url: str):
 -Don't include anything else than the json array, not even backticks or quotes. Don't write ```json ``` or anything juste the array starting with '[' and ending with ']' (without ' characters).
 -No Markdown code fences ! just the content of the json.
 -Take into considerations the tempo and time signature indicated on the sheet to compute the time values correctly.
--If the tempo or time signature are not indicated, guess correctly the tempo or assume a default tempo of 120bpm and a 4/4 time signature.
+-If the tempo or time signature are not indicated, guess correctly the tempo or assume a default tempo of 90bpm and a 4/4 time signature.
     """
     
-    
     result = await agent.run([DocumentUrl(pdf_url)], instructions=SYSTEM_PROMPT)
-    
-    return result.output
+
+    def _strip_markdown_fence(text: str) -> str:
+        # Remove ```json ... ``` fences if the model added them
+        cleaned = text.strip()
+        fenced = re.match(r"```(?:json)?\s*(.*)```", cleaned, flags=re.DOTALL)
+        return fenced.group(1).strip() if fenced else cleaned
+
+    cleaned_output = _strip_markdown_fence(result.output)
+    # pydantic validation
+    validated = AgentOutput.model_validate({"notes": cleaned_output})
+    return validated.notes

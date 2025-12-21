@@ -1,4 +1,4 @@
-from src.schemas.models import MusicalPiece
+from src.schemas.musical_piece import MusicalPiece
 from src.database.database import Database
 from src.database.db_repository import Repository
 
@@ -40,4 +40,10 @@ class MusicalPieceDAO:
 
     def update_notes(self, piece_id: str, notes: list[dict]) -> None:
         self.repository.update_notes(piece_id, notes)
+
+    def get_all_styles(self) -> list[str]:
+        return self.repository.get_all_styles()
+
+    def get_all_instruments(self) -> list[str]:
+        return self.repository.get_all_instruments()
         

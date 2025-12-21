@@ -75,6 +75,32 @@ class Repository:
                 objects.append(piece)
         return objects
 
+    def get_all_styles(self) -> list[str]:
+        """
+        Return the distinct set of style values stored in the collection.
+        """
+        raw_styles = self.collection.distinct("style")
+        styles: list[str] = []
+        for style in raw_styles:
+            if not style:
+                continue
+            if isinstance(style, str):
+                styles.append(fix_mojibake(style))
+        return styles
+
+    def get_all_instruments(self) -> list[str]:
+        """
+        Return the distinct set of instruments stored in the collection.
+        """
+        raw_instruments = self.collection.distinct("instruments")
+        instruments: list[str] = []
+        for instrument in raw_instruments:
+            if not instrument:
+                continue
+            if isinstance(instrument, str):
+                instruments.append(fix_mojibake(instrument))
+        return instruments
+
     def get_object_by_id(self, piece_id: str) -> dict | None:
         doc = None
         try:

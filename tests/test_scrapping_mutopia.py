@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from urllib.parse import urljoin
 
 from src.scrapping import mutopia
-from src.schemas.models import MusicalPiece
+from src.schemas.musical_piece import MusicalPiece
 from tests.conftest import FakePieceDAO, make_soup
 
 

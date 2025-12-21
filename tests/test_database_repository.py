@@ -1,5 +1,5 @@
 from src.database.db_repository import Repository
-from src.schemas.models import MusicalPiece
+from src.schemas.musical_piece import MusicalPiece
 from tests.conftest import FakeCollection
 
 

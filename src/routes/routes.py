@@ -20,7 +20,30 @@ async def get_pieces_by_style(style: str) -> list[dict]:
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    
+
+@router.get("/styles")
+async def get_all_styles() -> dict:
+    """
+    Return all distinct musical styles available in the collection.
+    """
+    try:
+        styles = piece_dao.get_all_styles()
+        return {"styles": styles}
+    except PyMongoError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/instruments")
+async def get_all_instruments() -> dict:
+    """
+    Return all distinct instruments available in the collection.
+    """
+    try:
+        instruments = piece_dao.get_all_instruments()
+        return {"instruments": instruments}
+    except PyMongoError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/pieces/instruments/{instrument}")
 async def get_pieces_by_instrument(instrument: str) -> list[dict]:

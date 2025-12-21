@@ -1,6 +1,6 @@
 import pytest
 
-from src.schemas.models import MusicalPiece
+from src.schemas.musical_piece import MusicalPiece
 
 
 def test_title_validator():

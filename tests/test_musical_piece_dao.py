@@ -1,5 +1,5 @@
 from src.database.musical_piece_dao import MusicalPieceDAO
-from src.schemas.models import MusicalPiece
+from src.schemas.musical_piece import MusicalPiece
 from tests.conftest import FakeDatabase
 
 

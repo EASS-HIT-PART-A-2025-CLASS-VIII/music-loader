@@ -10,3 +10,4 @@ uv>=0.4.0
 pytest>=8.3.3
 ruff>=0.7.1
 pydantic-ai
+python-dotenv

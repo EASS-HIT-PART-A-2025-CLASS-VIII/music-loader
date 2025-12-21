@@ -10,6 +10,16 @@ export default defineConfig({
         target: 'http://0.0.0.0:8000/', //https://music-loader.onrender.com/
         changeOrigin: true,
         secure: false,
+      },
+      '/styles': {
+        target: 'http://0.0.0.0:8000/',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/instruments': {
+        target: 'http://0.0.0.0:8000/',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }
