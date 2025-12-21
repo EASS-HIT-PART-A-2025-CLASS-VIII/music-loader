@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import  { enableAudio, ToneExample } from "./Tone.jsx";
+import  { enableAudio, ToneExample, stopPlayback, setTempo } from "./Tone.jsx";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -21,6 +21,9 @@ function App() {
     pdf_file: null
   })
   const [uploadLoading, setUploadLoading] = useState(false)
+  const [loadingPieceId, setLoadingPieceId] = useState(null)
+  const [playingPieceId, setPlayingPieceId] = useState(null)
+  const [tempo, setTempoValue] = useState(120)
   const [mousePosition, setMousePosition] = useState({ x: 0 })
 
   const styles = ['Baroque', 'Classical', 'Romantic', 'Renaissance', 'Modern', 'Jazz', 'Folk', 'Song']
@@ -124,7 +127,13 @@ function App() {
 
 
   const handlePlaySongById = async (piece_id) => {
-    setUploadLoading(true)
+    // Stop any currently playing piece before starting a new one.
+    if (playingPieceId && playingPieceId !== piece_id) {
+      stopPlayback()
+      setPlayingPieceId(null)
+    }
+
+    setLoadingPieceId(piece_id)
     setStatusMessage("Please wait while the notes are detected... starting soon")
 
     try {
@@ -133,35 +142,37 @@ function App() {
       })
 
       if (responsePiece.ok) {
-        console.log('Waiting for decryption results...')
         const pieceData = await responsePiece.json()
         const notesRaw = pieceData?.notes ?? pieceData
         const notes = typeof notesRaw === 'string' ? JSON.parse(notesRaw) : notesRaw
         if (!notes) {
           console.error('No notes found in response', pieceData)
+          setPlayingPieceId(null)
           return
         }
+        setPlayingPieceId(piece_id)
         const instruments =
   typeof pieceData.instruments === "string"
     ? pieceData.instruments.toLowerCase()
     : "unknown";
     
-        ToneExample(notes, instruments)
+        ToneExample(notes, instruments, tempo)
       } else {
         alert('Failed to get notes with AI')
       }
     } catch (error) {
       console.error('Error getting notes with AI:', error)
       alert('Error getting notes with AI')
+      setPlayingPieceId(null)
     } finally {
-      setUploadLoading(false)
+      setLoadingPieceId(null)
       setStatusMessage('')
     }
   }
 
   return (
     <>
-    <img src="https://www.clipartmax.com/png/middle/1-11041_g-key-clef-clip-treble-clef-clip-art.png" alt="G Key Clef Clip - Treble Clef Clip Art@clipartmax.com" style={{ width: '100px', height: 'auto' }}></img>
+    <img src="https://www.clipartmax.com/png/middle/1-11041_g-key-clef-clip-treble-clef-clip-art.png" alt="G Key Clef Clip - Treble Clef Clip Art@clipartmax.com" style={{ width: '100px', height: '100px', objectFit: 'cover' }}></img>
 
       <h1>Music Loader</h1>
       
@@ -289,7 +300,7 @@ function App() {
               filter: 'blur(18px)',
               transition: 'left 0.05s ease-out'
             }}></span>
-            <span style={{ position: 'relative', zIndex: 1 }}>Search by Title</span>
+            <span style={{ position: 'relative', zIndex: 1 }}>Search for a Piece</span>
           </button>
           <button 
             onClick={() => setActiveTab('style')} 
@@ -332,7 +343,7 @@ function App() {
               filter: 'blur(18px)',
               transition: 'left 0.05s ease-out'
             }}></span>
-            <span style={{ position: 'relative', zIndex: 1 }}>Search by Style</span>
+            <span style={{ position: 'relative', zIndex: 1 }}>Browse by Style</span>
           </button>
           <button 
             onClick={() => setActiveTab('instrument')} 
@@ -362,7 +373,7 @@ function App() {
               e.target.style.transform = 'scale(1) translateY(0)'
               e.target.style.boxShadow = activeTab === 'instrument' ? '0 4px 15px rgba(100, 108, 255, 0.4)' : 'none'
             }}
-          >
+            >
             <span style={{
               position: 'absolute',
               top: '-20%',
@@ -375,60 +386,152 @@ function App() {
               filter: 'blur(18px)',
               transition: 'left 0.05s ease-out'
             }}></span>
-            <span style={{ position: 'relative', zIndex: 1 }}>Search by Instrument</span>
-          </button>
-        </div>
-
-        <h2>{activeTab === 'title' && 'Search by Title'}{activeTab === 'style' && 'Search by Style'}{activeTab === 'instrument' && 'Search by Instrument'}</h2>
-        
-        {activeTab === 'title' ? (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <input type="text" placeholder="Search for music..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ padding: '10px', fontSize: '16px', width: '300px', borderRadius: '5px', border: '1px solid #ccc' }} />
-            {loading && <span>Searching...</span>}
+            <span style={{ position: 'relative', zIndex: 1 }}>Browse by Instrument</span>
+            </button>
           </div>
-        ) : activeTab === 'style' ? (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+
+          <h2>{activeTab === 'title' && 'Search for a Piece'}{activeTab === 'style' && 'Browse by Style'}{activeTab === 'instrument' && 'Browse by Instrument'}</h2>
+          
+          {activeTab === 'title' ? (
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input type="text" placeholder="Search for music..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ padding: '10px', fontSize: '16px', width: '300px', borderRadius: '5px', border: '1px solid #ccc' }} />
+            </div>
+          ) : activeTab === 'style' ? (
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <label style={{ fontWeight: 'bold' }}>Select a style:</label>
             {styles.map((style) => (
               <button key={style} onClick={() => setSelectedStyle(style)} style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedStyle === style ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedStyle === style ? '#646cff' : 'transparent', color: selectedStyle === style ? 'white' : 'inherit', cursor: 'pointer' }}>{style}</button>
             ))}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <label style={{ fontWeight: 'bold' }}>Select an instrument:</label>
             {instruments.map((instrument) => (
               <button key={instrument} onClick={() => setSelectedInstrument(instrument)} style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedInstrument === instrument ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedInstrument === instrument ? '#646cff' : 'transparent', color: selectedInstrument === instrument ? 'white' : 'inherit', cursor: 'pointer' }}>{instrument}</button>
             ))}
-          </div>
-        )}
-        
-        {results && (
-          <div style={{ marginTop: '20px', textAlign: 'left' }}>
+            </div>
+          )}
+          
+          {results && (
+            <div style={{ marginTop: '20px', textAlign: 'left' }}>
             {results.error ? (
               <p style={{ color: 'red' }}>{results.error}</p>
             ) : (
               <>
-                <h3>Found {results.length} pieces</h3>
-                <div style={{ display: 'grid', gap: '15px' }}>
-                  {results.map((piece) => (
-                    <div key={piece._id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', backgroundColor: '#000000ff', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: '0 0 10px 0' }}>Title: {piece.title}</h4>
-                        <p><strong>Composer:</strong> {piece.composer}</p>
-                        <p><strong>Style:</strong> {piece.style}</p>
-                        <p><strong>Instruments:</strong> {piece.instruments}</p>
-                        {piece.opus && <p><strong>Opus:</strong> {piece.opus}</p>}
-                        <a href={piece.pdf_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '8px 16px', backgroundColor: '#646cff', color: 'white', textDecoration: 'none', borderRadius: '5px', fontWeight: 'bold', marginTop: '10px', transition: 'background-color 0.3s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#4f5acf'} onMouseLeave={(e) => e.target.style.backgroundColor = '#646cff'}>📄 View PDF</a>
-                        <button
-                          onClick={async () => {
-                            await enableAudio();
-                            handlePlaySongById(piece._id);
-                          }}
-                          style={{ marginLeft: '10px', padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', transition: 'background-color 0.3s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#218838'} onMouseLeave={(e) => e.target.style.backgroundColor = '#28a745'}>▶️ Play with AI</button>
-
-                        {statusMessage && <p>{statusMessage}</p>}
+              <h3>Found {results.length} pieces</h3>
+              <div style={{ display: 'grid', gap: '15px' }}>
+                {results.map((piece) => (
+                <div key={piece._id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', backgroundColor: '#000000ff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+                  {playingPieceId === piece._id && loadingPieceId !== piece._id && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                    zIndex: 8
+                  }}>
+                    <div style={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                      color: 'white',
+                      padding: '10px 18px',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      fontSize: '16px'
+                    }}>
+                      Playing
+                    </div>
+                  </div>
+                )}
+                  {loadingPieceId === piece._id && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: '8px',
+                    zIndex: 10
+                  }}>
+                    <div style={{
+                    width: '60px',
+                    height: '60px',
+                    border: '6px solid #f3f3f3',
+                    borderTop: '6px solid #646cff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                    }}></div>
+                    {statusMessage && (
+                    <p style={{ color: 'white', marginTop: '20px', fontSize: '14px', textAlign: 'center', maxWidth: '80%' }}>
+                      {statusMessage}
+                    </p>
+                    )}
+                    <style>
+                    {`
+                      @keyframes spin {
+                      0% { transform: rotate(0deg); }
+                      100% { transform: rotate(360deg); }
+                      }
+                    `}
+                    </style>
+                  </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                  <h4 style={{ margin: '0 0 10px 0' }}> {piece.title}</h4>
+                  <p><strong>Composer:</strong> {piece.composer}</p>
+                    <p><strong>Style:</strong> {piece.style}</p>
+                    <p><strong>Instruments:</strong> {piece.instruments}</p>
+                    {piece.opus && <p><strong>Opus:</strong> {piece.opus}</p>}
+                    <a href={piece.pdf_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '8px 16px', backgroundColor: '#646cff', color: 'white', textDecoration: 'none', borderRadius: '5px', fontWeight: 'bold', marginTop: '10px', transition: 'background-color 0.3s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#4f5acf'} onMouseLeave={(e) => e.target.style.backgroundColor = '#646cff'}>📄 View PDF</a>
+                    <button
+                      onClick={async () => {
+                              if (playingPieceId === piece._id && loadingPieceId !== piece._id) {
+                                stopPlayback()
+                                setPlayingPieceId(null)
+                                setStatusMessage('')
+                                return
+                              }
+                              await enableAudio();
+                              await handlePlaySongById(piece._id);
+                            }}
+                          disabled={loadingPieceId === piece._id}
+                          style={{ marginLeft: '10px', padding: '8px 16px', backgroundColor: (playingPieceId === piece._id && loadingPieceId !== piece._id) ? '#dc3545' : '#28a745', color: 'white', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: loadingPieceId === piece._id ? 'not-allowed' : 'pointer', marginTop: '10px', transition: 'background-color 0.3s', opacity: loadingPieceId === piece._id ? 0.7 : 1 }} onMouseEnter={(e) => e.target.style.backgroundColor = (playingPieceId === piece._id && loadingPieceId !== piece._id) ? '#c82333' : '#218838'} onMouseLeave={(e) => e.target.style.backgroundColor = (playingPieceId === piece._id && loadingPieceId !== piece._id) ? '#dc3545' : '#28a745'}>
+                            {loadingPieceId === piece._id
+                              ? 'Loading...'
+                              : playingPieceId === piece._id
+                                ? 'Stop'
+                                : '▶️ Play with AI'}
+                          </button>
+                          {(loadingPieceId === piece._id || playingPieceId === piece._id) && (
+                            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <label style={{ color: 'white', fontWeight: 'bold' }}>Tempo:</label>
+                              <input
+                                type="range"
+                                min="40"
+                                max="200"
+                                step="1"
+                                value={tempo}
+                                onChange={(e) => {
+                                  const newTempo = Number(e.target.value)
+                                  setTempoValue(newTempo)
+                                  setTempo(newTempo)
+                                }}
+                                style={{ flex: 1 }}
+                              />
+                              <span style={{ color: 'white', minWidth: '40px', textAlign: 'right' }}>{tempo} BPM</span>
+                            </div>
+                          )}
                       </div>
-                      <img src={piece.image_url} alt="https://picsum.photos/200/200?random=1" style={{ width: '100px', height: 'auto', flexShrink: 0, marginLeft: '15px' }} />
+                      <img src={piece.image_url || "https://picsum.photos/200/200?random=1"} alt={piece.title} style={{ width: '180px', height: '180px', objectFit: 'cover', flexShrink: 0, marginLeft: '20px', borderRadius: '8px' }} />
                     </div>
                   ))}
                 </div>

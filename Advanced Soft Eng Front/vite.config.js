@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/pieces': {
-        target: 'https://music-loader.onrender.com/', //'http://0.0.0.0:8000/', //https://music-loader.onrender.com/
+        target: 'http://0.0.0.0:8000/', //https://music-loader.onrender.com/
         changeOrigin: true,
         secure: false,
       }
