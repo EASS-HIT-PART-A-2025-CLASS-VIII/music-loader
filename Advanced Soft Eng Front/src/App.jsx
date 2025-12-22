@@ -6,6 +6,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedStyle, setSelectedStyle] = useState('')
   const [selectedInstrument, setSelectedInstrument] = useState('')
+  const [selectedComposer, setSelectedComposer] = useState('')
   const [results, setResults] = useState(null)
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('title')
@@ -13,6 +14,7 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('')
   const [styles, setStyles] = useState(['Baroque', 'Classical', 'Romantic', 'Renaissance', 'Modern', 'Jazz', 'Folk', 'Song'])
   const [instruments, setInstruments] = useState(['Piano', 'Violin', 'Cello', 'Flute', 'Guitar', 'Voice', 'Clarinet', 'Saxophone'])
+  const [composers, setComposers] = useState(['Bach', 'Mozart', 'Beethoven', 'Chopin'])
   const [uploadForm, setUploadForm] = useState({
     title: '',
     composer: '',
@@ -37,9 +39,11 @@ function App() {
     try {
       let endpoint
       if (activeTab === 'title') {
-        endpoint = `/pieces/title/${query}`
+        endpoint = `/pieces/search/${query}`
       } else if (activeTab === 'style') {
         endpoint = `/pieces/styles/${query}`
+      } else if (activeTab === 'composer') {
+        endpoint = `/pieces/composers/${query}`
       } else if (activeTab === 'play') {
         endpoint = `/pieces/get_notes_with_ai/${query}`
       } else {
@@ -108,6 +112,39 @@ function App() {
   }, [activeTab])
 
   useEffect(() => {
+    if (activeTab !== 'composer') return
+    const fetchComposers = async () => {
+      try {
+        const response = await fetch('/composers')
+        if (!response.ok) {
+          throw new Error('Failed to fetch composers')
+        }
+        const data = await response.json()
+        const rawComposers = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.composers)
+            ? data.composers
+            : []
+        const normalized = rawComposers
+          .map((item) => {
+            if (typeof item === 'string') return item
+            if (typeof item?.name === 'string') return item.name
+            if (typeof item?.composer === 'string') return item.composer
+            return null
+          })
+          .filter(Boolean)
+          .map((s) => String(s).replace(/\//g, ' / '))
+        if (normalized.length) {
+          setComposers(normalized)
+        }
+      } catch (error) {
+        console.error('Error fetching composers:', error)
+      }
+    }
+    fetchComposers()
+  }, [activeTab])
+
+  useEffect(() => {
     if (activeTab !== 'instrument') return
     const fetchInstruments = async () => {
       try {
@@ -148,6 +185,14 @@ function App() {
       setResults(null)
     }
   }, [selectedInstrument, activeTab])
+
+  useEffect(() => {
+    if (activeTab === 'composer' && selectedComposer) {
+      handleSearch(selectedComposer)
+    } else if (activeTab === 'composer' && !selectedComposer) {
+      setResults(null)
+    }
+  }, [selectedComposer, activeTab])
 
   const handleUploadSubmit = async (e) => {
     e.preventDefault()
@@ -417,6 +462,49 @@ function App() {
             <span style={{ position: 'relative', zIndex: 1 }}>Browse by Style</span>
           </button>
           <button 
+            onClick={() => setActiveTab('composer')} 
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              setMousePosition({ x: e.clientX - rect.left })
+            }}
+            style={{ 
+              padding: '10px 20px', 
+              fontSize: '16px', 
+              borderRadius: '5px', 
+              border: activeTab === 'composer' ? '2px solid #646cff' : '1px solid #ccc', 
+              backgroundColor: activeTab === 'composer' ? '#646cff' : 'transparent', 
+              color: activeTab === 'composer' ? 'white' : 'inherit', 
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              transform: 'scale(1)',
+              boxShadow: activeTab === 'composer' ? '0 4px 15px rgba(100, 108, 255, 0.4)' : 'none',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'scale(1.05) translateY(-2px)'
+              e.target.style.boxShadow = '0 6px 20px rgba(100, 108, 255, 0.5)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1) translateY(0)'
+              e.target.style.boxShadow = activeTab === 'composer' ? '0 4px 15px rgba(100, 108, 255, 0.4)' : 'none'
+            }}
+          >
+            <span style={{
+              position: 'absolute',
+              top: '-20%',
+              left: `${mousePosition.x}px`,
+              width: '120px',
+              height: '140%',
+              background: 'radial-gradient(ellipse 60px 100% at center, rgba(147, 51, 234, 0.9) 0%, rgba(147, 51, 234, 0.5) 30%, rgba(147, 51, 234, 0) 60%)',
+              transform: 'translateX(-50%)',
+              pointerEvents: 'none',
+              filter: 'blur(18px)',
+              transition: 'left 0.05s ease-out'
+            }}></span>
+            <span style={{ position: 'relative', zIndex: 1 }}>Browse by Composer</span>
+          </button>
+          <button 
             onClick={() => setActiveTab('instrument')} 
             onMouseMove={(e) => {
               const rect = e.currentTarget.getBoundingClientRect()
@@ -461,7 +549,7 @@ function App() {
             </button>
           </div>
 
-          <h2>{activeTab === 'title' && 'Search for a Piece'}{activeTab === 'style' && 'Browse by Style'}{activeTab === 'instrument' && 'Browse by Instrument'}</h2>
+          <h2>{activeTab === 'title' && 'Search for a Piece'}{activeTab === 'style' && 'Browse by Style'}{activeTab === 'composer' && 'Browse by Composer'}{activeTab === 'instrument' && 'Browse by Instrument'}</h2>
           
           {activeTab === 'title' ? (
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -477,6 +565,19 @@ function App() {
                 style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedStyle === style ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedStyle === style ? '#646cff' : 'transparent', color: selectedStyle === style ? 'white' : 'inherit', cursor: 'pointer' }}
               >
                 {style}
+              </button>
+            ))}
+            </div>
+          ) : activeTab === 'composer' ? (
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <label style={{ fontWeight: 'bold' }}>Select a composer:</label>
+            {composers.map((composer) => (
+              <button
+                key={composer}
+                onClick={() => setSelectedComposer(selectedComposer === composer ? '' : composer)}
+                style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '5px', border: selectedComposer === composer ? '2px solid #646cff' : '1px solid #ccc', backgroundColor: selectedComposer === composer ? '#646cff' : 'transparent', color: selectedComposer === composer ? 'white' : 'inherit', cursor: 'pointer' }}
+              >
+                {composer}
               </button>
             ))}
             </div>
