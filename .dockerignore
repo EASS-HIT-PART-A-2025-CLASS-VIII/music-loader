@@ -10,4 +10,4 @@ __pycache__
 mutopia_a4_pdfs
 *.log
 .env
-.env.dock
+

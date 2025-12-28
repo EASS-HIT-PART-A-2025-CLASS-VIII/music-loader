@@ -276,6 +276,38 @@ button {
   font-weight: 600;
 }
 
+.piece-card__composer-info {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.piece-card__composer-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.piece-card__composer-name {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: #f4f7ff;
+}
+
+.piece-card__composer-text,
+.piece-card__composer-status {
+  margin: 0;
+  font-size: 13px;
+  color: #dce5f5;
+  line-height: 1.4;
+}
+
 .piece-card__meta {
   display: flex;
   flex-wrap: wrap;

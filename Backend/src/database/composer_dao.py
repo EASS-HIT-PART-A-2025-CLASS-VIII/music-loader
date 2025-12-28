@@ -3,26 +3,25 @@ from src.database.database import Database
 from src.database.db_shared_repository import Repository
 
 
-class MusicalPieceDAO:
+class ComposerDAO:
     """
-    DAO for MusicalPiece documents, backed by the shared Database instance.
+    DAO for Composer documents, backed by the shared Database instance.
     """
 
     def __init__(self, db: Database):
         self.db = db
         self.repository = Repository(
-            collection=db.pieces_collection, model_cls=MusicalPiece
+            collection=db.composers_collection, model_cls=Composer
         )
 
-    def insert_object_to_db(self, piece: MusicalPiece):
-        self.repository.insert_object_to_db(piece)
+    def insert_composer_to_db(self, composer: Composer):
+        self.repository.insert_object_to_db(composer)
 
-    def get_all_pieces(self) -> list[dict]:
+    def get_all_composers(self) -> list[dict]:
         return self.repository.get_all_objects()
 
-    def get_pieces_by_title(self, title: str) -> list[dict]:
-        return self.repository.get_object_by_title(title)
-
+    def get_composers_by_name(self, name: str) -> list[dict]:
+        return self.repository.get_object_by_name(name)
     def get_pieces_by_style(self, style: str) -> list[dict]:
         return self.repository.get_object_by_style(style)
     

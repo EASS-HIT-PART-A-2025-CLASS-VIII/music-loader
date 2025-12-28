@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export function PieceCard({
   piece,
   isLoading,
@@ -5,13 +7,36 @@ export function PieceCard({
   statusMessage,
   onPlayToggle,
   tempo,
-  onTempoChange
+  onTempoChange,
+  onComposerInfo,
+  composerInfo,
+  composerInfoLoading
 }) {
   const showTempo = isLoading || isPlaying;
   const buttonDisabled = isLoading;
   const buttonLabel = isLoading ? 'Loading...' : isPlaying ? 'Stop' : '▶️ Play with AI';
   const buttonColor = isPlaying ? '#dc3545' : '#28a745';
   const buttonHover = isPlaying ? '#c82333' : '#218838';
+  const [showComposerInfo, setShowComposerInfo] = useState(false);
+  const hasComposer = Boolean(piece?.composer);
+  const composerButtonDisabled = composerInfoLoading || !hasComposer;
+  const composerButtonLabel = composerInfoLoading
+    ? 'Loading...'
+    : showComposerInfo
+      ? 'Hide Info'
+      : 'Composer Info';
+
+  const handleComposerInfoClick = () => {
+    if (!hasComposer) return;
+    setShowComposerInfo((prev) => {
+      const next = !prev;
+      const needsFetch = !composerInfo || composerInfo?.error;
+      if (next && needsFetch && !composerInfoLoading) {
+        onComposerInfo?.();
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="piece-card">
@@ -79,6 +104,56 @@ export function PieceCard({
         >
           {buttonLabel}
         </button>
+        <button
+          onClick={handleComposerInfoClick}
+          disabled={composerButtonDisabled}
+          style={{
+            marginLeft: '10px',
+            padding: '8px 16px',
+            backgroundColor: '#1f2e53',
+            color: '#f4f7ff',
+            border: '1px solid rgba(143, 180, 255, 0.6)',
+            borderRadius: '5px',
+            fontWeight: 'bold',
+            cursor: composerButtonDisabled ? 'not-allowed' : 'pointer',
+            marginTop: '10px',
+            transition: 'background-color 0.3s',
+            opacity: composerButtonDisabled ? 0.7 : 1
+          }}
+          onMouseEnter={(e) => {
+            if (!composerButtonDisabled) e.target.style.backgroundColor = '#26376a';
+          }}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = '#1f2e53')}
+        >
+          {composerButtonLabel}
+        </button>
+        {showComposerInfo && (
+          <div className="piece-card__composer-info">
+            {composerInfoLoading && (
+              <p className="piece-card__composer-status">Loading composer info...</p>
+            )}
+            {!composerInfoLoading && composerInfo?.error && (
+              <p className="piece-card__composer-status">{composerInfo.error}</p>
+            )}
+            {!composerInfoLoading && composerInfo && !composerInfo.error && (
+              <>
+                {composerInfo.image_url && (
+                  <img
+                    src={composerInfo.image_url}
+                    alt={piece.composer}
+                    className="piece-card__composer-image"
+                  />
+                )}
+                <div>
+                  <h4 className="piece-card__composer-name">{piece.composer}</h4>
+                  <p className="piece-card__composer-text">
+                    {composerInfo.info || 'No info available.'}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {showTempo && (
           <div className="piece-card__tempo">
             <label>Tempo:</label>

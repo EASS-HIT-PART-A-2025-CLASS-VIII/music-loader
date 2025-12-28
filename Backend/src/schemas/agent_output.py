@@ -35,10 +35,6 @@ class AgentInfosOutput(BaseModel):
         ...,
         description="Informative text about the composer or musical piece provided to the AI agent.",
     )
-    image_url: str | None = Field(
-        None,
-        description="A valid URL of an image of the composer, if applicable.",
-    )
     
     
     @field_validator("info")

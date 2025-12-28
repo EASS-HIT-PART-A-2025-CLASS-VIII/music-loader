@@ -26,6 +26,8 @@ function App() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [composerInfo, setComposerInfo] = useState(null)
   const [composerInfoLoading, setComposerInfoLoading] = useState(false)
+  const [cardComposerInfo, setCardComposerInfo] = useState({})
+  const [cardComposerInfoLoading, setCardComposerInfoLoading] = useState({})
   const [uploadForm, setUploadForm] = useState({
     title: '',
     composer: '',
@@ -191,6 +193,27 @@ function App() {
     }
   }
 
+  const handleCardComposerInfo = async (composerName) => {
+    if (!composerName) return
+    const composerKey = composerName.trim()
+    const cached = cardComposerInfo[composerKey]
+    if (cached && !cached.error) return
+    if (cardComposerInfoLoading[composerKey]) return
+    setCardComposerInfoLoading((prev) => ({ ...prev, [composerKey]: true }))
+    try {
+      const data = await api.getComposerInfo(composerKey)
+      setCardComposerInfo((prev) => ({ ...prev, [composerKey]: data }))
+    } catch (error) {
+      console.error('Error fetching composer info:', error)
+      setCardComposerInfo((prev) => ({
+        ...prev,
+        [composerKey]: { error: 'Failed to fetch composer info.' }
+      }))
+    } finally {
+      setCardComposerInfoLoading((prev) => ({ ...prev, [composerKey]: false }))
+    }
+  }
+
   const handlePlayToggle = (pieceId) => {
     if (playingPieceId === pieceId && !loadingPieceId) {
       stopPlayback()
@@ -307,6 +330,9 @@ function App() {
           tempo={tempo}
           onTempoChange={(val) => setTempoValue(val)}
           onPlayToggle={handlePlayToggle}
+          onComposerInfo={handleCardComposerInfo}
+          composerInfoByName={cardComposerInfo}
+          composerInfoLoadingByName={cardComposerInfoLoading}
         />
       </div>
     </>

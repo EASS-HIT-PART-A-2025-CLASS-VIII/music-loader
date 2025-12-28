@@ -2,12 +2,15 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pymongo.errors import PyMongoError
 from pydantic_ai.exceptions import ModelHTTPError
 
+from src.scrapping import repository
 import src.config as config
 from src.DI.container import get_piece_dao
 from src.scrapping import mutopia
 from src.ai_agent.notes_agent import ai_pdf_to_notes
 from src.ai_agent.infos_agents import ai_infos
 from src.ai_agent.agent_instance import get_agent
+from src.schemas.agent_output import AgentInfosOutput
+from src.schemas.composer_piece_info import ComposerPieceInfo
 
 
 router = APIRouter()
@@ -166,22 +169,29 @@ async def get_notes_with_ai(piece_id: str) -> dict:
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@router.get("/composer/info/{composer_name}")    
-async def ai_composer_info(composer_name: str) -> str:     
+@router.get(
+    "/composer/info/{composer_name}",
+    response_model=ComposerPieceInfo,
+    response_model_exclude_none=False,
+)
+async def ai_composer_info(composer_name: str) -> ComposerPieceInfo:
     try:
-        info = await ai_infos(get_agent(), composer_name)
-        return {"info": info}
+        info = await repository.composer_info(composer_name)
+        return info
     except ModelHTTPError as e:
         raise HTTPException(status_code=503, detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}")
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
     
     
-@router.get("/piece_info/{piece_name}")    
-async def ai_piece_info(piece_name: str) -> str:     
+
+    
+    
+@router.get("/piece_info/{piece_name}", response_model=AgentInfosOutput)
+async def ai_piece_info(piece_name: str) -> AgentInfosOutput:
     try:
         info = await ai_infos(get_agent(), piece_name)
-        return {"info": info}
+        return info
     except ModelHTTPError as e:
         raise HTTPException(status_code=503, detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}")
     except PyMongoError as e:
