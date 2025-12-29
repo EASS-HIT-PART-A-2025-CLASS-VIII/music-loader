@@ -25,16 +25,13 @@ class MusicalPieceDAO:
 
     def get_pieces_by_style(self, style: str) -> list[dict]:
         return self.repository.get_object_by_style(style)
-    
-    
+
     def get_pieces_by_composer(self, composer: str) -> list[dict]:
         return self.repository.get_object_by_composer(composer)
-    
-    
-    
+
     def get_pieces_by_instrument(self, instrument: str) -> list[dict]:
         return self.repository.get_object_by_instrument(instrument)
-    
+
     def get_piece_by_id(self, piece_id: str) -> dict | None:
         return self.repository.get_object_by_id(piece_id)
 
@@ -55,7 +52,6 @@ class MusicalPieceDAO:
 
     def get_all_composers(self) -> list[str]:
         return self.repository.get_all_composers()
-    
+
     def search_pieces(self, query: str) -> list[dict]:
         return self.repository.search_pieces(query)
-        

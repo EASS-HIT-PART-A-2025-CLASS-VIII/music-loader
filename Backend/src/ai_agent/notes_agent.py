@@ -36,14 +36,16 @@ async def ai_pdf_to_notes(agent, pdf_url: str):
 -Take into considerations the tempo and time signature indicated on the sheet to compute the time values correctly.
 -If the tempo or time signature are not indicated, guess correctly the tempo or assume a default tempo of 90bpm and a 4/4 time signature.
     """
-    
+
     try:
         result = await agent.run([DocumentUrl(pdf_url)], instructions=SYSTEM_PROMPT)
     except ModelHTTPError as e:
         # If the configured model isn't permitted, retry once with a safer fallback.
         if getattr(e, "status_code", None) == 403:
             fallback_agent = Agent("gateway/anthropic:claude-sonnet-4-5")
-            result = await fallback_agent.run([DocumentUrl(pdf_url)], instructions=SYSTEM_PROMPT)
+            result = await fallback_agent.run(
+                [DocumentUrl(pdf_url)], instructions=SYSTEM_PROMPT
+            )
         else:
             raise e
 

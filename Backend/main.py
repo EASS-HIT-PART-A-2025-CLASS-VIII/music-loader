@@ -34,6 +34,5 @@ from src.routes import server  # noqa: E402,F401
 if __name__ == "__main__":
     # load_env_file(Path(".env"))
     print("Starting FastAPI server...")
-    
-    
+
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

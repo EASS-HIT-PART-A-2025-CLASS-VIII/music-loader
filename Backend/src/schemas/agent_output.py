@@ -29,14 +29,12 @@ class AgentNotesOutput(BaseModel):
         return value
 
 
-
 class AgentInfosOutput(BaseModel):
     info: str = Field(
         ...,
         description="Informative text about the composer or musical piece provided to the AI agent.",
     )
-    
-    
+
     @field_validator("info")
     @classmethod
     def validate_info(cls, value):

@@ -56,11 +56,12 @@ class Repository:
         pattern = re.escape(title)
         cursor = self.collection.find({"title": {"$regex": pattern, "$options": "i"}})
         return [piece for doc in cursor if (piece := self._serialize(doc))]
-    
-    
+
     def get_object_by_composer(self, composer: str) -> list[dict]:
         pattern = re.escape(composer)
-        cursor = self.collection.find({"composer": {"$regex": pattern, "$options": "i"}})
+        cursor = self.collection.find(
+            {"composer": {"$regex": pattern, "$options": "i"}}
+        )
         return [piece for doc in cursor if (piece := self._serialize(doc))]
 
     def get_object_by_style(self, style: str) -> list[dict]:
@@ -147,16 +148,17 @@ class Repository:
                 {"_id": piece_id},
                 {"$set": {"notes": notes}},
             )
-            
-            
+
     def search_pieces(self, query: str) -> list[dict]:
         pattern = re.escape(query)
-        cursor = self.collection.find({
-            "$or": [
-                {"title": {"$regex": pattern, "$options": "i"}},
-                {"composer": {"$regex": pattern, "$options": "i"}},
-                {"style": {"$regex": pattern, "$options": "i"}},
-                {"instruments": {"$regex": pattern, "$options": "i"}},
-            ]
-        })
+        cursor = self.collection.find(
+            {
+                "$or": [
+                    {"title": {"$regex": pattern, "$options": "i"}},
+                    {"composer": {"$regex": pattern, "$options": "i"}},
+                    {"style": {"$regex": pattern, "$options": "i"}},
+                    {"instruments": {"$regex": pattern, "$options": "i"}},
+                ]
+            }
+        )
         return [piece for doc in cursor if (piece := self._serialize(doc))]

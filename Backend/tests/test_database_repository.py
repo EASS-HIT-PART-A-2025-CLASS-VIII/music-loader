@@ -29,7 +29,7 @@ def test_insert_and_delete_methods_delegate():
     piece = MusicalPiece.model_validate({"title": "Prelude"})
 
     repo.insert_object_to_db(piece)
-    assert collection.inserted == [piece.model_dump(by_alias=True)]
+    assert collection.inserted == [piece.model_dump(by_alias=True, exclude_none=True)]
 
     repo.delete_all_objects_from_db()
     assert collection.deleted_queries == [{}]

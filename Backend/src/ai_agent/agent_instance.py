@@ -18,6 +18,7 @@ for env_name in (".env.local", ".env.docker", ".env"):
 def _get_model_name() -> str:
     return (os.getenv("PYDANTIC_AI_MODEL") or DEFAULT_MODEL).strip()
 
+
 @lru_cache
 def get_agent() -> Agent:
     if _get_model_name().startswith("gateway/"):

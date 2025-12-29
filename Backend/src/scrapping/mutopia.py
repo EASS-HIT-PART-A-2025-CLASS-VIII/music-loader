@@ -24,7 +24,12 @@ def _make_soup(resp: requests.Response) -> BeautifulSoup:
     Normalize response encoding before parsing so UTF-8 accents don't turn
     into mojibake (e.g., 'PiÃ¨ces' instead of 'Pièces').
     """
-    resp.encoding = resp.apparent_encoding or resp.encoding or "utf-8"
+    encoding = (
+        getattr(resp, "apparent_encoding", None)
+        or getattr(resp, "encoding", None)
+        or "utf-8"
+    )
+    resp.encoding = encoding
     return BeautifulSoup(resp.text, "html.parser")
 
 
@@ -152,22 +157,32 @@ def start_scrapping(max_pieces=None, delay=1.0):
         try:
             soup = fetch_piece_page(url)
             metadata = extract_piece_metadata(url, soup=soup)
-            
+
             print(f"  Metadata extracted. {len(metadata.model_dump())} fields found.")
             if metadata:
                 print(f"  Metadata: {metadata}")
-                metadata.image_url = search_images(f"{metadata.style} {metadata.composer} music sheet {metadata.instruments}")
+                try:
+                    metadata.image_url = search_images(
+                        f"{metadata.style} {metadata.composer} music sheet {metadata.instruments}"
+                    )
+                except Exception as exc:
+                    print("  Image lookup failed:", exc)
 
                 # Skip insert if we already have the piece (dedupe on music_id_number or pdf_url).
                 duplicate = None
                 if metadata.music_id_number:
-                    duplicate = piece_dao.get_piece_by_music_id_number(metadata.music_id_number)
+                    duplicate = piece_dao.get_piece_by_music_id_number(
+                        metadata.music_id_number
+                    )
                 if not duplicate and metadata.pdf_url:
                     duplicate = piece_dao.get_piece_by_pdf_url(metadata.pdf_url)
 
                 if duplicate:
-                    print("  Skipping insert; already exists with _id:", duplicate.get("_id"))
-                    delay=0
+                    print(
+                        "  Skipping insert; already exists with _id:",
+                        duplicate.get("_id"),
+                    )
+                    delay = 0
                 else:
                     piece_dao.insert_object_to_db(metadata)
 

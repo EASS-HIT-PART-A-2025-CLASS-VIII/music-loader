@@ -24,8 +24,7 @@ async def get_pieces_by_style(style: str) -> list[dict]:
         return [piece for piece in pieces]
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-    
+
 
 @router.get("/styles")
 async def get_all_styles() -> dict:
@@ -70,8 +69,7 @@ async def get_pieces_by_instrument(instrument: str) -> list[dict]:
         return [piece for piece in pieces]
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-    
+
 
 @router.get("/start-scrapping")
 async def start_scrapping_endpoint(
@@ -121,8 +119,8 @@ async def get_pieces_by_name(title: str) -> list[dict]:
         return [piece for piece in pieces]
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-    
+
+
 @router.get("/pieces/composers/{composer}")
 async def get_pieces_by_composer(composer: str) -> list[dict]:
     try:
@@ -140,6 +138,7 @@ async def search_pieces(query: str) -> list[dict]:
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/pieces/get_notes_with_ai/{piece_id}")
 async def get_notes_with_ai(piece_id: str) -> dict:
     try:
@@ -149,25 +148,29 @@ async def get_notes_with_ai(piece_id: str) -> dict:
         pdf_notes = piece.get("notes")
         print(piece)
         print("Existing notes:", pdf_notes)
-        
+
         if pdf_notes is not None:
             return {"notes": pdf_notes}
-        
+
         pdf_url = piece.get("pdf_url")
         if pdf_url is None:
-            raise HTTPException(status_code=404, detail="PDF URL not found for this piece")
-    
+            raise HTTPException(
+                status_code=404, detail="PDF URL not found for this piece"
+            )
 
         notes = await ai_pdf_to_notes(get_agent(), pdf_url)
         piece_dao.update_notes(piece_id, notes)
-        
+
         return {"notes": notes}
     except ModelHTTPError as e:
         # Surface AI model failures as a 503 to avoid masking as server errors
-        raise HTTPException(status_code=503, detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}")
+        raise HTTPException(
+            status_code=503,
+            detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}",
+        )
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 
 @router.get(
     "/composer/info/{composer_name}",
@@ -179,20 +182,23 @@ async def ai_composer_info(composer_name: str) -> ComposerPieceInfo:
         info = await repository.composer_info(composer_name)
         return info
     except ModelHTTPError as e:
-        raise HTTPException(status_code=503, detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}")
+        raise HTTPException(
+            status_code=503,
+            detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}",
+        )
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-    
 
-    
-    
+
 @router.get("/piece_info/{piece_name}", response_model=AgentInfosOutput)
 async def ai_piece_info(piece_name: str) -> AgentInfosOutput:
     try:
         info = await ai_infos(get_agent(), piece_name)
         return info
     except ModelHTTPError as e:
-        raise HTTPException(status_code=503, detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}")
+        raise HTTPException(
+            status_code=503,
+            detail=f"AI model unavailable: {e.body.get('error', {}).get('message', 'model error')}",
+        )
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=str(e))

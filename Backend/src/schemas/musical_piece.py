@@ -19,8 +19,6 @@ class MusicalPiece(BaseModel):
     notes: list[dict] | None = None
     image_url: str | None = None
     db_id: str | None = Field(default=None, alias="_id")
-   
-    
 
     @field_validator("title")
     def title_must_not_be_empty(cls, v: str) -> str:
@@ -49,7 +47,7 @@ class MusicalPiece(BaseModel):
         if isinstance(v, list):
             return v
         raise ValueError("notes must be a list or JSON string representing a list")
-    
+
     @field_validator("image_url")
     def image_url_must_be_a_string(cls, v: str) -> str:
         if v is not None and not isinstance(v, str):

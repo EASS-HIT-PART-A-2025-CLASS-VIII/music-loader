@@ -10,9 +10,7 @@ def google_search_images(query: str) -> str:
     if not api_key:
         raise ValueError("Missing GOOGLE_IMAGE_API")
 
-    cse_id = (
-        os.getenv("GOOGLE_IMAGE_CX")
-    )
+    cse_id = os.getenv("GOOGLE_IMAGE_CX")
     if not cse_id:
         raise ValueError(
             "Missing Google Custom Search engine id (set GOOGLE_IMAGE_CX or GOOGLE_CSE_ID)."
@@ -31,7 +29,7 @@ def google_search_images(query: str) -> str:
         },
         timeout=15,
     )
-    
+
     print("Google Search Response:", resp.text)
     resp.raise_for_status()
     items = resp.json().get("items", [])
